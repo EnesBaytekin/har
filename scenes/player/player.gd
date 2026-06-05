@@ -1,25 +1,31 @@
 extends CharacterBody3D
 
 ## Player ID: 0=Gamepad 1 + WASD, 1=Gamepad 2 + Arrows, 2=Gamepad 3, 3=Gamepad 4
-@export var player_id: int = 0
+@export var player_id: int = 0:
+	set(value):
+		_player_id = value
+		_update_texture()
+	get():
+		return _player_id
+var _player_id: int = 0
 @export var speed: float = 5.0
 
-const PLAYER_SPRITES := {
-	0: preload("res://assets/sprites/player_blue.png"),
-	1: preload("res://assets/sprites/player_red.png"),
-	2: preload("res://assets/sprites/player_green.png"),
-	3: preload("res://assets/sprites/player_yellow.png"),
+const PLAYER_TEXTURES := {
+	0: preload("res://assets/sprites/player1.png"),
+	1: preload("res://assets/sprites/player2.png"),
+	2: preload("res://assets/sprites/player3.png"),
+	3: preload("res://assets/sprites/player4.png"),
 }
 
 func _ready():
-	_update_sprite()
+	_update_texture()
 
-func _update_sprite():
+func _update_texture():
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:
 		return
-	if PLAYER_SPRITES.has(player_id):
-		sprite.texture = PLAYER_SPRITES[player_id]
+	if PLAYER_TEXTURES.has(player_id):
+		sprite.texture = PLAYER_TEXTURES[player_id]
 
 func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
@@ -40,9 +46,9 @@ func _get_input() -> Vector2:
 	if abs(stick_x) > 0.15 or abs(stick_y) > 0.15:
 		return Vector2(stick_x, stick_y)
 
-	# --- Klavye (action_name içinde "p{player_id}" prefix'ini kullan) ---
+	# --- Klavye ---
 	var prefix := "p%d_" % player_id
 	return Vector2(
 		Input.get_axis(prefix + "move_left", prefix + "move_right"),
-		Input.get_axis(prefix + "move_up", prefix + "move_down")  # Z-ileri pozitif
+		Input.get_axis(prefix + "move_up", prefix + "move_down")
 	)

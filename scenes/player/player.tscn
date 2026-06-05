@@ -1,17 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://dtvg6p0g2f8q2"]
+[gd_scene format=3 uid="uid://dtvg6p0g2f8q2"]
 
-[ext_resource type="Script" path="res://scenes/player/player.gd" id="1_3pqrm"]
+[ext_resource type="Script" uid="uid://ca57nqhncgtxp" path="res://scenes/player/player.gd" id="1_3pqrm"]
+[ext_resource type="Texture2D" uid="uid://player1" path="res://assets/sprites/player1.png" id="2_4mjhv"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r4nd"]
+radius = 0.234375
 
-[node name="Player" type="CharacterBody3D"]
+[node name="Player" type="CharacterBody3D" unique_id=1411394763]
 script = ExtResource("1_3pqrm")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1794837876]
 shape = SubResource("CapsuleShape3D_r4nd")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
-position = Vector3(0, 1, 0)
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=2068041390]
+transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, -0.15197942, 0)
 billboard = 1
-billboard_keep_scale = true
-pixel_size = 0.015
+texture = ExtResource("2_4mjhv")
