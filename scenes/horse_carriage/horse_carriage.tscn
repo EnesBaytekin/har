@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/horse/horse.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/wagon/wagon.tscn" id="2"]
+
+[node name="HorseCarriage" type="Node3D"]
+
+[node name="Horse" parent="." instance=ExtResource("1")]
+
+[node name="Wagon" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.5)
+target_node = NodePath("../Horse")
