@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b1drmxpwm8dud"]
+
+[ext_resource type="Script" uid="uid://l882tnmxs1en" path="res://scenes/camera/camera_pivot.gd" id="1_cb3a2"]
+
+[node name="CameraPivot" type="Node3D" unique_id=1575938569]
+script = ExtResource("1_cb3a2")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=271121343]
+transform = Transform3D(1, 0, 0, 0, 0.5736001, 0.81918585, 0, -0.81918585, 0.5736001, 0, 5, 3)
+current = true

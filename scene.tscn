@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://dxom8l801omy7"]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_axmc3"]
+[ext_resource type="PackedScene" path="res://scenes/camera/camera_pivot.tscn" id="2_bymz7"]
+
+[sub_resource type="Environment" id="Environment_vn77s"]
+ambient_light_color = Color(0.3, 0.3, 0.35, 1.0)
+ambient_light_source = 1
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ouhp"]
+albedo_color = Color(0.15, 0.18, 0.22, 1.0)
+roughness = 0.8
+metallic = 0.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_p5qls"]
+size = Vector2(40, 40)
+material = SubResource("StandardMaterial3D_4ouhp")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_b2cxm"]
+size = Vector3(40, 0.5, 40)
+
+[node name="Scene" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_vn77s")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, -0.5, 0.5, 0.5, 0.707107, 0.5, -0.5, 0.5, 0.707107, 0, 5, 0)
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+position = Vector3(0, -0.25, 0)
+shape = SubResource("BoxShape3D_b2cxm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_p5qls")
+
+[node name="Players" type="Node3D" parent="."]
+
+[node name="Player1" type="CharacterBody3D" parent="Players" instance=ExtResource("1_axmc3")]
+player_id = 0
+position = Vector3(-3, 0, 0)
+
+[node name="Player2" type="CharacterBody3D" parent="Players" instance=ExtResource("1_axmc3")]
+player_id = 1
+position = Vector3(3, 0, 0)
+
+[node name="CameraPivot" parent="." instance=ExtResource("2_bymz7")]
+players = [NodePath("../Players/Player1"), NodePath("../Players/Player2")]
