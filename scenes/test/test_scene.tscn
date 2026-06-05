@@ -1,53 +1,50 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://uypt0e1nporp"]
 
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_p"]
-[ext_resource type="PackedScene" path="res://scenes/camera/camera_pivot.tscn" id="2_c"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ground_tile.png" id="3_t"]
+[ext_resource type="PackedScene" uid="uid://dtvg6p0g2f8q2" path="res://scenes/player/player.tscn" id="1_p"]
+[ext_resource type="PackedScene" uid="uid://b1drmxpwm8dud" path="res://scenes/camera/camera_pivot.tscn" id="2_c"]
+[ext_resource type="Texture2D" uid="uid://ck56eq5n1eoqb" path="res://assets/sprites/ground_tile.png" id="3_t"]
 
 [sub_resource type="Environment" id="Environment_e1"]
-ambient_light_color = Color(0.35, 0.35, 0.4, 1.0)
 ambient_light_source = 1
-
-[sub_resource type="StandardMaterial3D" id="Material_g1"]
-albedo_color = Color(1, 1, 1, 1)
-albedo_texture = ExtResource("3_t")
-uv1_scale = Vector3(25, 25, 1)
-
-[sub_resource type="PlaneMesh" id="Mesh_g1"]
-size = Vector2(50, 50)
-material = SubResource("Material_g1")
+ambient_light_color = Color(0.35, 0.35, 0.4, 1)
 
 [sub_resource type="BoxShape3D" id="Collision_g1"]
 size = Vector3(50, 0.5, 50)
 
-[node name="TestScene" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lpkca"]
+albedo_texture = ExtResource("3_t")
+uv1_scale = Vector3(50, 50, 1)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[sub_resource type="PlaneMesh" id="Mesh_g1"]
+material = SubResource("StandardMaterial3D_lpkca")
+size = Vector2(50, 50)
+
+[node name="TestScene" type="Node3D" unique_id=2123501991]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1047426202]
 environment = SubResource("Environment_e1")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.7071, -0.57735, 0.40825, 0.5, 0.7071, 0.5, -0.5, 0.40825, 0.7071, 0, 8, 0)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2139653420]
+transform = Transform3D(0.683223, 0.18048343, 0.7075536, -0.5177411, -0.48036006, 0.6348462, 0.58320475, -0.80656195, -0.38189742, 0, 8, 0)
 shadow_enabled = true
-shadow_bias = 0.1
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1995858543]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-position = Vector3(0, -0.25, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=758901248]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("Collision_g1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1069723239]
 mesh = SubResource("Mesh_g1")
 
-[node name="Players" type="Node3D" parent="."]
+[node name="Players" type="Node3D" parent="." unique_id=1621913235]
 
-[node name="Player1" type="CharacterBody3D" parent="Players" instance=ExtResource("1_p")]
-player_id = 0
-position = Vector3(-3, 0, -2)
+[node name="Player1" parent="Players" unique_id=1447426201 instance=ExtResource("1_p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -2)
 
-[node name="Player2" type="CharacterBody3D" parent="Players" instance=ExtResource("1_p")]
+[node name="Player2" parent="Players" unique_id=312282569 instance=ExtResource("1_p")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 2)
 player_id = 1
-position = Vector3(3, 0, 2)
 
-[node name="CameraPivot" parent="." instance=ExtResource("2_c")]
-players = [NodePath("../Players/Player1"), NodePath("../Players/Player2")]
+[node name="CameraPivot" parent="." unique_id=1389342042 instance=ExtResource("2_c")]
+players = Array[NodePath]([NodePath("../Players/Player1"), NodePath("../Players/Player2")])

@@ -5,15 +5,17 @@
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r4nd"]
 radius = 0.234375
+height = 1.6196289
 
 [node name="Player" type="CharacterBody3D" unique_id=1411394763]
 script = ExtResource("1_3pqrm")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1794837876]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.80981445, 0)
 shape = SubResource("CapsuleShape3D_r4nd")
 
 [node name="Sprite3D" type="Sprite3D" parent="." unique_id=2068041390]
-transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, -0.15197942, 0)
+transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0.03, 0.84, 0)
 billboard = 1
 texture_filter = 0
 texture = ExtResource("2_4mjhv")
