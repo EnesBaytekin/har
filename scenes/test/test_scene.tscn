@@ -35,6 +35,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("Collision_g1")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1069723239]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.015594482, -0.0478487, -0.02950859)
 mesh = SubResource("Mesh_g1")
 
 [node name="Players" type="Node3D" parent="." unique_id=1621913235]

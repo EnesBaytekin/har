@@ -9,6 +9,8 @@ extends CharacterBody3D
 		return _player_id
 var _player_id: int = 0
 @export var speed: float = 5.0
+## Hareket yönüne göre sprite'ı yatay flip et (Editor'den aç/kapa)
+@export var flip_on_move: bool = true
 
 const PLAYER_TEXTURES := {
 	0: preload("res://assets/sprites/player1.png"),
@@ -33,11 +35,19 @@ func _physics_process(_delta: float) -> void:
 	if input_dir.length() > 0.15:
 		var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
 		velocity = direction * speed
+		_update_facing(direction)
 		look_at(global_position + direction, Vector3.UP)
 	else:
 		velocity = Vector3.ZERO
 
 	move_and_slide()
+
+func _update_facing(direction: Vector3) -> void:
+	if not flip_on_move or direction.x == 0:
+		return
+	var sprite := $Sprite3D as Sprite3D
+	if sprite:
+		sprite.flip_h = direction.x < 0
 
 func _get_input() -> Vector2:
 	# --- Gamepad sol stick (öncelikli) ---
