@@ -7,6 +7,9 @@
 radius = 0.234375
 height = 1.6196289
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
+radius = 1.5
+
 [node name="Player" type="CharacterBody3D" unique_id=1411394763]
 script = ExtResource("1_3pqrm")
 
@@ -19,3 +22,14 @@ transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0.03, 0.84, 0)
 billboard = 1
 texture_filter = 0
 texture = ExtResource("2_4mjhv")
+
+[node name="CarriedItem" type="Sprite3D" parent="."]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.4, 0.5, 0)
+billboard = 1
+texture_filter = 0
+visible = false
+
+[node name="PickupArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupArea"]
+shape = SubResource("SphereShape3D_pickup")

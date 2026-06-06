@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bv7p3let3nxtb"]
+
+[ext_resource type="Script" uid="uid://b2533a0fsf88o" path="res://scenes/item/dropped_item.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://eu0rxnutwo0b" path="res://assets/sprites/item_wood.png" id="2"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_efgh"]
+radius = 0.36379024
+
+[node name="DroppedItem" type="Node3D" unique_id=1638872472]
+script = ExtResource("1")
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=999129095]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.36880583, 0)
+billboard = 1
+texture_filter = 0
+texture = ExtResource("2")
+
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1222693874]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=1697276269]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34959376, 0)
+shape = SubResource("SphereShape3D_efgh")

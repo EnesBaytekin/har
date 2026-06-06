@@ -14,6 +14,7 @@ var _stone_left: int
 var _nearby_players: Array[Node] = []
 
 const INPUT_PREFIX = "p%d_"
+const DROPPED_ITEM = preload("res://scenes/item/dropped_item.tscn")
 
 const COAL_TEXTURE := preload("res://assets/sprites/coal_rock.png")
 const ROCK_TEXTURE := preload("res://assets/sprites/rock.png")
@@ -71,6 +72,7 @@ func _to_stone_stage() -> void:
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:
 		sprite.texture = ROCK_TEXTURE
+	_spawn_item(2)  # ItemType.COAL = 2
 
 func _to_depleted() -> void:
 	_stage = Stage.DEPLETED
@@ -79,6 +81,13 @@ func _to_depleted() -> void:
 		sprite.texture = PILE_TEXTURE
 	# Tamamen kazılınca collision gitsin, içinden geçilebilsin
 	$CollisionShape3D.disabled = true
+	_spawn_item(1)  # ItemType.STONE = 1
+
+func _spawn_item(item_type: int) -> void:
+	var di := DROPPED_ITEM.instantiate() as DroppedItem
+	di.item_type = item_type
+	di.global_position = global_position
+	get_tree().current_scene.add_child(di)
 
 func _on_body_entered(body: Node) -> void:
 	if body == self:

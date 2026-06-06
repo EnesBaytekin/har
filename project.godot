@@ -24,7 +24,7 @@ global_input="*res://scenes/global/global_input.gd"
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/mode=3
-window/stretch/mode="canvas_items"
+window/stretch/mode=1
 
 [input]
 

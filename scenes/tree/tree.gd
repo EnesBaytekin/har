@@ -10,6 +10,7 @@ var _chopped: bool = false
 var _nearby_players: Array[Node] = []
 
 const INPUT_PREFIX = "p%d_"
+const DROPPED_ITEM = preload("res://scenes/item/dropped_item.tscn")
 
 const ALIVE_TEXTURE := preload("res://assets/sprites/tree.png")
 const CUT_TEXTURE := preload("res://assets/sprites/tree_cut.png")
@@ -68,6 +69,14 @@ func _chop() -> void:
 		sprite.texture = CUT_TEXTURE
 	# Collision'ı kaldır (içinden geçilebilir olsun)
 	$CollisionShape3D.disabled = true
+	# Odun düşür (ItemType.WOOD = 0)
+	_spawn_item(0)
+
+func _spawn_item(item_type: int) -> void:
+	var di := DROPPED_ITEM.instantiate() as DroppedItem
+	di.item_type = item_type
+	di.global_position = global_position
+	get_tree().current_scene.add_child(di)
 
 func _on_body_entered(body: Node) -> void:
 	if body == self:
