@@ -21,20 +21,43 @@ func _input(event: InputEvent) -> void:
 		var key := int(event.keycode)
 		match key:
 			KEY_8:
-				_target_angle -= ROTATION_STEP
+				_target_angle = _normalize_angle(_target_angle - ROTATION_STEP)
 			KEY_9:
-				_target_angle += ROTATION_STEP
+				_target_angle = _normalize_angle(_target_angle + ROTATION_STEP)
 
 func _process(delta: float) -> void:
-	# Smooth dönüş: mevcut açıdan hedef açıya yaklaş
-	var current_angle := rad_to_deg(rotation.y)
-	var new_angle := move_toward(current_angle, _target_angle, rotation_speed * delta)
-	rotation.y = deg_to_rad(new_angle)
+	var current_deg := rad_to_deg(rotation.y)
+
+	# Mevcut açı ile hedef arasındaki KISA farkı bul (-180..180)
+	var diff := _target_angle - current_deg
+	diff = fmod(diff, 360.0)
+	if diff > 180.0:
+		diff -= 360.0
+	elif diff < -180.0:
+		diff += 360.0
+
+	var step := rotation_speed * delta
+	if abs(diff) <= step:
+		# Hedefe vardık, rotation'ı direkt kısa yoldan ayarla
+		rotation.y = deg_to_rad(current_deg + diff)
+		# _target_angle'i de normalize et ki bir daha birikmesin
+		_target_angle = _normalize_angle(_target_angle)
+	else:
+		rotation.y = deg_to_rad(current_deg + sign(diff) * step)
 
 	# Smooth takip
 	var target := _calculate_midpoint()
 	var factor := clampf(follow_speed * delta, 0.0, 1.0)
 	global_position = global_position.lerp(target, factor)
+
+## Açıyı -180..180 aralığına normalize eder.
+func _normalize_angle(deg: float) -> float:
+	deg = fmod(deg, 360.0)
+	if deg > 180.0:
+		deg -= 360.0
+	elif deg < -180.0:
+		deg += 360.0
+	return deg
 
 ## Tüm oyuncuların ortalama pozisyonunu döndürür.
 ## Hiç oyuncu yoksa pivot'un mevcut pozisyonunu korur.

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dn300itmtgel6"]
 
 [ext_resource type="Script" uid="uid://dbfdcv1ey5ybg" path="res://scenes/wagon/wagon.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/wagon_fire_0.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://3igwh1l7gucn" path="res://assets/sprites/wagon_fire_0.png" id="2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hjkl"]
 radius = 0.8
@@ -15,7 +15,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CapsuleShape3D_hjkl")
 
 [node name="Sprite3D" type="Sprite3D" parent="." unique_id=773568303]
-transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.4, 0)
+transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, -0.001450777, 1.0185492, 0)
 billboard = 1
 texture_filter = 0
 texture = ExtResource("2")
