@@ -44,6 +44,7 @@ var _normal_texture: Texture2D = null
 
 func _ready():
 	_update_texture()
+	add_to_group("players")
 	$PickupArea.area_entered.connect(_on_item_area_entered)
 	$PickupArea.area_exited.connect(_on_item_area_exited)
 	$InteractArea.body_entered.connect(_on_interact_body_entered)
@@ -211,6 +212,17 @@ func _drop_item():
 
 	carried_item_type = -1
 	_update_carried_sprite()
+
+## Düşmanlardan hasar alır.
+func take_damage(amount: int) -> void:
+	var sprite := $Sprite3D as Sprite3D
+	if sprite:
+		var tween := create_tween()
+		tween.set_trans(Tween.TRANS_QUAD)
+		var orig := sprite.position.x
+		tween.tween_property(sprite, "position:x", orig + 0.2, 0.04)
+		tween.tween_property(sprite, "position:x", orig - 0.15, 0.04)
+		tween.tween_property(sprite, "position:x", orig, 0.04)
 
 # --- Signal handlers ---
 

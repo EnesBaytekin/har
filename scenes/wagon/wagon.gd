@@ -25,9 +25,13 @@ const FIRE_TEXTURES := {
 var _target: Node3D = null
 
 func _ready():
+	add_to_group("wagons")
 	if target_node:
 		_target = get_node(target_node) as Node3D
 	_update_texture()
+
+func get_fire_level() -> int:
+	return fire_level
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
