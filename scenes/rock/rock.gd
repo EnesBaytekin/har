@@ -14,13 +14,19 @@ var _stone_left: int
 
 const DROPPED_ITEM = preload("res://scenes/item/dropped_item.tscn")
 
-const COAL_TEXTURE := preload("res://assets/sprites/coal_rock.png")
-const ROCK_TEXTURE := preload("res://assets/sprites/rock.png")
-const PILE_TEXTURE := preload("res://assets/sprites/stone_pile.png")
-
 func _ready():
 	_coal_left = max_coal
 	_stone_left = max_stone
+	_update_frame()
+
+## Her state değişiminde çağrılır — coals.png'den row (stage) + random col
+func _update_frame():
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite:
+		return
+	var row := int(_stage)  # COAL=0, STONE=1, DEPLETED=2
+	var col := randi() % 2  # 0 veya 1 (rastgele varyasyon)
+	sprite.frame = row * 2 + col  # hframes=2 olduğu için
 
 ## Player tarafından çağrılır — kayaya bir kazma vuruşu.
 func hit(_hitter_id: int) -> void:
@@ -54,16 +60,12 @@ func _shake() -> void:
 
 func _to_stone_stage() -> void:
 	_stage = Stage.STONE
-	var sprite := $Sprite3D as Sprite3D
-	if sprite:
-		sprite.texture = ROCK_TEXTURE
+	_update_frame()
 	_spawn_item(2)  # COAL
 
 func _to_depleted() -> void:
 	_stage = Stage.DEPLETED
-	var sprite := $Sprite3D as Sprite3D
-	if sprite:
-		sprite.texture = PILE_TEXTURE
+	_update_frame()
 	$CollisionShape3D.disabled = true
 	_spawn_item(1)  # STONE
 
