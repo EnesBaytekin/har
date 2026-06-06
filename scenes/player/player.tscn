@@ -25,19 +25,20 @@ transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0.03, 0.84, 0)
 billboard = 1
 texture_filter = 0
 texture = ExtResource("2_4mjhv")
+hframes = 4
 
-[node name="CarriedItem" type="Sprite3D" parent="."]
+[node name="CarriedItem" type="Sprite3D" parent="." unique_id=1241802745]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.4, 0.5, 0)
+visible = false
 billboard = 1
 texture_filter = 0
-visible = false
 
-[node name="PickupArea" type="Area3D" parent="."]
+[node name="PickupArea" type="Area3D" parent="." unique_id=1731631625]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupArea" unique_id=371121318]
 shape = SubResource("SphereShape3D_pickup")
 
-[node name="InteractArea" type="Area3D" parent="."]
+[node name="InteractArea" type="Area3D" parent="." unique_id=126741737]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractArea" unique_id=1486992707]
 shape = SubResource("SphereShape3D_interact")

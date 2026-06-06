@@ -29,19 +29,41 @@ const ITEM_TEXTURES := {
 	ItemType.COAL: preload("res://assets/sprites/item_coal.png"),
 }
 
+var _pickaxe_texture: Texture2D = null
+
 ## Taşınan item türü (-1 = boş)
 var carried_item_type: int = -1
 var _nearby_items: Array[Node] = []
 var _nearby_interactables: Array[Node] = []
 
+## Animasyon
+var _anim_time: float = 0.0
+const ANIM_SPEED: float = 10.0  # frame/saniye
+var _is_pickaxing: bool = false
+var _normal_texture: Texture2D = null
+
 func _ready():
 	_update_texture()
-	# Item'lar Area3D olduğu için area sinyalleri
 	$PickupArea.area_entered.connect(_on_item_area_entered)
 	$PickupArea.area_exited.connect(_on_item_area_exited)
-	# Ağaç/kaya/at CharacterBody3D olduğu için body sinyalleri
 	$InteractArea.body_entered.connect(_on_interact_body_entered)
 	$InteractArea.body_exited.connect(_on_interact_body_exited)
+
+func _process(delta: float) -> void:
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite:
+		return
+
+	if _is_pickaxing:
+		# Pickaxe animasyonunu elle sürme — tween halleder
+		return
+
+	if velocity.length_squared() > 0.01:
+		_anim_time += delta * ANIM_SPEED
+		sprite.frame = int(_anim_time) % 4
+	else:
+		_anim_time = 0.0
+		sprite.frame = 0
 
 func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
@@ -81,6 +103,7 @@ func _do_interact():
 			continue
 		if n.has_method("hit"):
 			n.hit(player_id)
+			_play_pickaxe_anim()
 			return
 
 	# 4. Öncelik: Yerde item varsa al
@@ -103,6 +126,53 @@ func _update_carried_sprite():
 		cs.visible = true
 	else:
 		cs.visible = false
+
+## Kazma animasyonunu oynatır (2 frame, sonra eski haline döner).
+func _play_pickaxe_anim():
+	if _is_pickaxing:
+		return
+	_is_pickaxing = true
+
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite:
+		_is_pickaxing = false
+		return
+
+	# Texture'ı runtime'da yükle
+	if not _pickaxe_texture:
+		_pickaxe_texture = load("res://assets/sprites/player_pickaxe.png")
+	if not _pickaxe_texture:
+		_is_pickaxing = false
+		return
+
+	_normal_texture = sprite.texture
+	sprite.texture = _pickaxe_texture
+	sprite.hframes = 2
+	sprite.frame = 0
+
+	# Tween ile 0 → 1 → revert
+	var tween := create_tween()
+	tween.tween_interval(0.08)
+	tween.tween_callback(func():
+		if is_instance_valid(sprite):
+			sprite.frame = 1
+	)
+	tween.tween_interval(0.08)
+	tween.tween_callback(_revert_texture)
+
+## Pickaxe animasyonu bitince normal sprite'a döner.
+func _revert_texture():
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite or not is_instance_valid(sprite):
+		_is_pickaxing = false
+		_normal_texture = null
+		return
+	sprite.texture = _normal_texture if _normal_texture else PLAYER_TEXTURES.get(player_id, null)
+	if sprite.texture:
+		sprite.hframes = 4
+	sprite.frame = 0
+	_is_pickaxing = false
+	_normal_texture = null
 
 func _pickup_item():
 	if carried_item_type >= 0 or _nearby_items.size() == 0:
