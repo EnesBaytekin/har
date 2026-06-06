@@ -13,6 +13,14 @@ var _nearby_players: Array[Node] = []
 
 const INPUT_PREFIX = "p%d_"
 
+const EMPTY_TEXTURE := preload("res://assets/sprites/horse.png")
+const RIDER_TEXTURES := {
+	0: preload("res://assets/sprites/horse_rider_0.png"),
+	1: preload("res://assets/sprites/horse_rider_1.png"),
+	2: preload("res://assets/sprites/horse_rider_2.png"),
+	3: preload("res://assets/sprites/horse_rider_3.png"),
+}
+
 func _ready():
 	$InteractionArea.body_entered.connect(_on_body_entered)
 	$InteractionArea.body_exited.connect(_on_body_exited)
@@ -66,6 +74,16 @@ func _update_facing(direction: Vector3) -> void:
 	if sprite:
 		sprite.flip_h = direction.x < 0
 
+## Boş/binik durumuna göre at sprite'ını değiştirir.
+func _update_rider_texture() -> void:
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite:
+		return
+	if rider_player_id >= 0 and RIDER_TEXTURES.has(rider_player_id):
+		sprite.texture = RIDER_TEXTURES[rider_player_id]
+	else:
+		sprite.texture = EMPTY_TEXTURE
+
 func _on_body_entered(body: Node) -> void:
 	if body == self:
 		return
@@ -82,6 +100,9 @@ func mount(player: Node3D) -> bool:
 
 	rider_node = player
 	rider_player_id = player.get("player_id") as int
+
+	# At sprite'ını biniciye göre değiştir
+	_update_rider_texture()
 
 	# Oyuncu karakterini devre dışı bırak
 	_apply_player_visibility(player, false)
@@ -103,6 +124,9 @@ func dismount() -> void:
 
 	rider_player_id = -1
 	rider_node = null
+
+	# At sprite'ını boş haline döndür
+	_update_rider_texture()
 
 func _apply_player_visibility(player: Node3D, visible: bool) -> void:
 	player.visible = visible
