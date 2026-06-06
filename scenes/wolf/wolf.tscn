@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://cc7r4lo21hswg"]
+
+[ext_resource type="Script" uid="uid://bdqko4xtnaiaw" path="res://scenes/wolf/wolf.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://c4volkbf4ebsv" path="res://assets/sprites/wolf.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://cd0u2sajwkpc8" path="res://assets/sprites/bar.png" id="3_bar"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wlf"]
+radius = 0.54541016
+height = 1.0908203
+
+[node name="Wolf" type="CharacterBody3D" unique_id=834773531]
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2018357063]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("CapsuleShape3D_wlf")
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=1711502052]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0.55, 0)
+billboard = 1
+texture_filter = 0
+texture = ExtResource("2")
+hframes = 4
+
+[node name="HealthBarBg" type="Sprite3D" parent="." unique_id=2114764046]
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 1.2, 0)
+modulate = Color(0.15, 0.15, 0.15, 1)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("3_bar")
+
+[node name="HealthBarFill" type="Sprite3D" parent="." unique_id=567334429]
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 1.2, 0.01)
+modulate = Color(0.4, 0.6, 1, 1)
+billboard = 2
+texture_filter = 0
+render_priority = 1
+texture = ExtResource("3_bar")
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 8)

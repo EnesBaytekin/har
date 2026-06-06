@@ -18,6 +18,8 @@ extends CharacterBody3D
 @export var max_health: int = 100
 ## Hasar miktarı
 @export var damage: int = 1
+## Kurtlara verilen hasar (oyuncudan farklı)
+@export var wolf_damage: int = 25
 ## Taş dikkat dağıtma süresi
 @export var investigate_time: float = 4.0
 ## Enrage süresi
@@ -64,7 +66,7 @@ func _physics_process(delta: float) -> void:
 	_attack_timer = maxf(_attack_timer - delta, 0.0)
 	_state_timer -= delta
 
-	_target = _find_nearest_player()
+	_target = _find_nearest_target()
 	_nearest_fire = _find_nearest_fire()
 
 	var fear_radius := _get_fire_fear_radius()
@@ -94,7 +96,10 @@ func _physics_process(delta: float) -> void:
 				if dist < attack_range and _attack_timer <= 0:
 					if _target.has_method("take_damage") and is_instance_valid(_target):
 						print("Bear attacks! dist=", dist, " damage=", damage)
-						_target.take_damage(damage)
+						var dmg := damage
+						if _target.is_in_group(&"wolves"):
+							dmg = wolf_damage
+						_target.take_damage(dmg)
 						_attack_timer = attack_cooldown
 			else:
 				velocity = Vector3.ZERO
@@ -211,11 +216,23 @@ func hit(_hitter_id: int) -> void:
 		_state_timer = chase_time
 		_current_speed = speed
 
+## Kurtlardan hasar al.
+func take_damage(amount: int) -> void:
+	health -= amount
+	_update_health_bar()
+	if health <= 0:
+		queue_free()
+		return
+	# Kurt saldırırsa kovala
+	_state = State.CHASING
+	_state_timer = chase_time
+	_current_speed = speed
+
 func bear_hit_by_stone() -> void:
 	_state = State.ENRAGED
 	_state_timer = enrage_time
 	_current_speed = enrage_speed
-	_enrage_target = _find_nearest_player()
+	_enrage_target = _find_nearest_target()
 
 func _update_facing(dir: Vector3) -> void:
 	var sprite := $Sprite3D as Sprite3D
@@ -233,10 +250,17 @@ func _update_health_bar():
 	fill.region_rect.size.x = w
 	fill.offset.x = (64.0 - w) / -2.0
 
-func _find_nearest_player() -> Node3D:
+func _find_nearest_target() -> Node3D:
 	var best: Node3D = null
 	var best_dist := INF
 	for n in get_tree().get_nodes_in_group(&"players"):
+		if not is_instance_valid(n):
+			continue
+		var d := global_position.distance_squared_to(n.global_position)
+		if d < best_dist:
+			best_dist = d
+			best = n
+	for n in get_tree().get_nodes_in_group(&"wolves"):
 		if not is_instance_valid(n):
 			continue
 		var d := global_position.distance_squared_to(n.global_position)
