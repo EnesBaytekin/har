@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://tree_scene_01"]
+[gd_scene format=3 uid="uid://cq2rurqt34vm4"]
 
-[ext_resource type="Script" path="res://scenes/tree/tree.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/tree.png" id="2"]
+[ext_resource type="Script" uid="uid://cgqqr5epxm2w5" path="res://scenes/tree/tree.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cgsmidc4srifr" path="res://assets/sprites/tree.png" id="2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mkju"]
 radius = 0.3
@@ -10,20 +10,20 @@ height = 1.6
 [sub_resource type="SphereShape3D" id="SphereShape3D_nbvc"]
 radius = 1.5
 
-[node name="Tree" type="CharacterBody3D"]
+[node name="Tree" type="CharacterBody3D" unique_id=1342673608]
 script = ExtResource("1")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1178819218]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CapsuleShape3D_mkju")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=2006566557]
 transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.85, 0)
 billboard = 1
 texture_filter = 0
 texture = ExtResource("2")
 
-[node name="InteractionArea" type="Area3D" parent="."]
+[node name="InteractionArea" type="Area3D" parent="." unique_id=1550171466]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea" unique_id=694980655]
 shape = SubResource("SphereShape3D_nbvc")
