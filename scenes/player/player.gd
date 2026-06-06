@@ -33,21 +33,44 @@ func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
 
 	if input_dir.length() > 0.15:
-		var direction := Vector3(input_dir.x, 0, input_dir.y).normalized()
+		var direction := _input_to_camera_relative(input_dir)
 		velocity = direction * speed
-		_update_facing(direction)
+		_update_facing(input_dir.x)
 		look_at(global_position + direction, Vector3.UP)
 	else:
 		velocity = Vector3.ZERO
 
 	move_and_slide()
 
-func _update_facing(direction: Vector3) -> void:
-	if not flip_on_move or direction.x == 0:
+## Input yönünü kameranın bakış açısına göre dönüştürür.
+## Böylece "yukarı" her zaman kameradan uzaklaşan yön olur.
+func _input_to_camera_relative(input_dir: Vector2) -> Vector3:
+	var camera := get_viewport().get_camera_3d()
+	if not camera:
+		return Vector3(input_dir.x, 0, input_dir.y).normalized()
+
+	var forward := -camera.global_transform.basis.z
+	var right := camera.global_transform.basis.x
+	forward.y = 0
+	right.y = 0
+
+	# Kameranın tam tepeden baktığı durumda forward sıfır olur
+	if forward.length_squared() < 0.001:
+		forward = Vector3(0, 0, -1)
+	if right.length_squared() < 0.001:
+		right = Vector3(1, 0, 0)
+
+	forward = forward.normalized()
+	right = right.normalized()
+
+	return (forward * -input_dir.y + right * input_dir.x).normalized()
+
+func _update_facing(input_x: float) -> void:
+	if not flip_on_move or input_x == 0:
 		return
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:
-		sprite.flip_h = direction.x < 0
+		sprite.flip_h = input_x < 0
 
 func _get_input() -> Vector2:
 	# --- Gamepad sol stick (öncelikli) ---
