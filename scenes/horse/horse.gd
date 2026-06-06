@@ -7,8 +7,12 @@ extends CharacterBody3D
 
 var rider_player_id: int = -1  # -1 = boş
 var rider_node: Node3D = null
+var _mount_ready: bool = false  # false = henüz binme tamamlanmadı, inme algılanmasın
 
 const INPUT_PREFIX = "p%d_"
+
+var _anim_time: float = 0.0
+const ANIM_SPEED: float = 10.0
 
 const EMPTY_TEXTURE := preload("res://assets/sprites/horse.png")
 const RIDER_TEXTURES := {
@@ -18,12 +22,26 @@ const RIDER_TEXTURES := {
 	3: preload("res://assets/sprites/horse_rider_3.png"),
 }
 
+func _process(delta: float) -> void:
+	if rider_player_id < 0:
+		return
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite:
+		return
+	if velocity.length_squared() > 0.01:
+		_anim_time += delta * ANIM_SPEED
+		sprite.frame = int(_anim_time) % 4
+	else:
+		_anim_time = 0.0
+		sprite.frame = 0
+
 func _physics_process(_delta: float) -> void:
 	if rider_player_id >= 0:
 		# --- Binik hal: inme kontrolü ---
-		if Input.is_action_just_pressed(INPUT_PREFIX % rider_player_id + "interact"):
+		if _mount_ready and Input.is_action_just_pressed(INPUT_PREFIX % rider_player_id + "interact"):
 			dismount()
 			return
+		_mount_ready = true
 
 		var input_dir := _get_rider_input()
 		if input_dir.length() > 0.15:
@@ -47,6 +65,7 @@ func mount_player(player: Node3D) -> bool:
 
 	rider_node = player
 	rider_player_id = player.get("player_id") as int
+	_mount_ready = false  # ilk frame inmeyi algılama
 	_update_rider_texture()
 	_apply_player_visibility(player, false)
 	return true
@@ -58,7 +77,7 @@ func dismount() -> void:
 		rider_node = null
 		return
 
-	var spawn_offset := global_transform.basis.x * 2.0
+	var spawn_offset := -global_transform.basis.z * 0.5
 	rider_node.global_position = global_position + spawn_offset
 	_apply_player_visibility(rider_node, true)
 
