@@ -6,12 +6,41 @@ extends CharacterBody3D
 @export var max_distance: float = 2.0
 ## Vagonun toparlanma hızı (yüksek = daha sert çekiş)
 @export var follow_speed: float = 6.0
+## Ateş seviyesi (0=hiç yok, 4=maksimum)
+@export var fire_level: int = 0:
+	set(value):
+		fire_level = clampi(value, 0, 4)
+		_update_texture()
+	get():
+		return fire_level
+
+const FIRE_TEXTURES := {
+	0: preload("res://assets/sprites/wagon_fire_0.png"),
+	1: preload("res://assets/sprites/wagon_fire_1.png"),
+	2: preload("res://assets/sprites/wagon_fire_2.png"),
+	3: preload("res://assets/sprites/wagon_fire_3.png"),
+	4: preload("res://assets/sprites/wagon_fire_4.png"),
+}
 
 var _target: Node3D = null
 
 func _ready():
 	if target_node:
 		_target = get_node(target_node) as Node3D
+	_update_texture()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key := int(event.keycode)
+		if key >= KEY_0 and key <= KEY_4:
+			fire_level = key - KEY_0
+
+func _update_texture():
+	var sprite := $Sprite3D as Sprite3D
+	if not sprite:
+		return
+	if FIRE_TEXTURES.has(fire_level):
+		sprite.texture = FIRE_TEXTURES[fire_level]
 
 func _physics_process(delta: float) -> void:
 	var horse := _target

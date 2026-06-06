@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dn300itmtgel6"]
 
 [ext_resource type="Script" uid="uid://dbfdcv1ey5ybg" path="res://scenes/wagon/wagon.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://yb8ibo17eu1x" path="res://assets/sprites/wagon.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/wagon_fire_0.png" id="2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hjkl"]
 radius = 0.8
