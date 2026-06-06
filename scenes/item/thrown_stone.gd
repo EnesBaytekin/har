@@ -38,7 +38,7 @@ func _land():
 	for b in bears:
 		if is_instance_valid(b) and b.has_method("bear_notice_stone"):
 			var d := global_position.distance_squared_to(b.global_position)
-			if d < 9.0:
+			if d < 36.0:
 				b.bear_notice_stone(global_position)
 
 	queue_free()

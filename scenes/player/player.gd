@@ -126,21 +126,18 @@ func _throw_stone():
 	carried_item_type = -1
 	_update_carried_sprite()
 
-	# Fırlatma yönü (kameranın forward'ı)
-	var camera := get_viewport().get_camera_3d()
-	var dir := Vector3.FORWARD
-	if camera:
-		dir = -camera.global_transform.basis.z
-		dir.y = 0
-		if dir.length_squared() < 0.001:
-			dir = Vector3.FORWARD
-		dir = dir.normalized()
+	# Fırlatma yönü — oyuncunun son baktığı yön
+	var dir := -global_transform.basis.z
+	dir.y = 0
+	if dir.length_squared() < 0.001:
+		dir = Vector3.FORWARD
+	dir = dir.normalized()
 
 	# Mermiyi oluştur
 	var stone_scene := preload("res://scenes/item/thrown_stone.tscn")
 	var stone := stone_scene.instantiate()
 	stone.global_position = global_position + dir * 0.5 + Vector3.UP * 0.3
-	stone.linear_velocity = dir * 15.0 + Vector3.UP * 2.0
+	stone.linear_velocity = dir * 5.0 + Vector3.UP * 1.0
 	get_tree().current_scene.add_child(stone)
 
 

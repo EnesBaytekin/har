@@ -123,6 +123,22 @@ func _physics_process(delta: float) -> void:
 				_state_timer = 1.0
 
 		State.INVESTIGATING:
+			# Oyuncu bana doğru geliyorsa taşı bırak, player'a dön
+			if _target:
+				var to_player := _target.global_position - global_position
+				to_player.y = 0
+				var dist_sq := to_player.length_squared()
+				if dist_sq < 25.0:
+					var player_vel := Vector3.ZERO
+					if _target.has_method(&"get_velocity"):
+						player_vel = _target.get_velocity()
+					if player_vel.length_squared() > 0.5:
+						var moving_toward := player_vel.normalized().dot(to_player.normalized()) > 0.3
+						if moving_toward:
+							_state = State.CHASING
+							_state_timer = chase_time
+							_current_speed = speed
+
 			var to_target := _investigate_target - global_position
 			to_target.y = 0
 			if to_target.length() > 0.5:
@@ -180,6 +196,13 @@ func bear_notice_stone(pos: Vector3) -> void:
 	_investigate_target = pos
 	_state_timer = investigate_time
 	_current_speed = speed
+
+## Oyuncu tarafından vuruldu (kürekle/kazmayla).
+func hit(_hitter_id: int) -> void:
+	if _state == State.INVESTIGATING or _state == State.IDLE:
+		_state = State.CHASING
+		_state_timer = chase_time
+		_current_speed = speed
 
 ## Taş direkt çarptı — sinirlen.
 func bear_hit_by_stone() -> void:
