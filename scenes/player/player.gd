@@ -206,7 +206,7 @@ func _drop_item():
 	var scene := preload("res://scenes/item/dropped_item.tscn")
 	var di := scene.instantiate() as DroppedItem
 	di.item_type = carried_item_type
-	di.global_position = global_position + global_transform.basis.x * 1.5
+	di.global_position = global_position
 	get_tree().current_scene.add_child(di)
 
 	carried_item_type = -1
