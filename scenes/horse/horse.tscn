@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bfm2vmuyxoasa" path="res://scenes/horse/horse.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://cep1dskriauir" path="res://assets/sprites/horse.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bar_bg.png" id="3_bg"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bar_fill.png" id="4_fl"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r4nd"]
 radius = 0.7480469
@@ -23,6 +25,19 @@ billboard = 1
 texture_filter = 0
 texture = ExtResource("2")
 hframes = 4
+
+[node name="HungerBarBg" type="Sprite3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 0.15, 0, 0, 0, 1.2, 0, 1.6, 0)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("3_bg")
+
+[node name="HungerBarFill" type="Sprite3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 0.15, 0, 0, 0, 1.2, 0, 1.6, 0)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("4_fl")
+modulate = Color(0.93, 0.8, 0, 1)
 
 [node name="InteractionArea" type="Area3D" parent="." unique_id=1361240839]
 

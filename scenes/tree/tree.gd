@@ -24,6 +24,10 @@ func hit(_hitter_id: int) -> void:
 	health -= damage_per_hit
 	_shake()
 
+	# Her vuruşta %12 şansla elma düşsün
+	if randf() < 0.12:
+		_spawn_item(3)  # ItemType.APPLE
+
 	if health <= 0:
 		_chop()
 

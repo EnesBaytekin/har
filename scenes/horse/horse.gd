@@ -1,13 +1,21 @@
 extends CharacterBody3D
 
-## Atın hareket hızı
+## Atın hareket hızı (tam tokken)
 @export var speed: float = 5.0
 ## Hareket yönüne göre sprite'ı flip et
 @export var flip_on_move: bool = true
+## Maksimum tokluk
+@export var max_hunger: float = 100.0
+## Saniyede ne kadar hızlı acıksın
+@export var hunger_rate: float = 1.5
+## Elma başına dolan tokluk
+@export var apple_feed_amount: float = 40.0
 
-var rider_player_id: int = -1  # -1 = boş
+var rider_player_id: int = -1
 var rider_node: Node3D = null
-var _mount_ready: bool = false  # false = henüz binme tamamlanmadı, inme algılanmasın
+var _mount_ready: bool = false
+
+var _hunger: float = 100.0
 
 const INPUT_PREFIX = "p%d_"
 
@@ -22,7 +30,16 @@ const RIDER_TEXTURES := {
 	3: preload("res://assets/sprites/horse_rider_3.png"),
 }
 
+func _ready():
+	_hunger = max_hunger
+
 func _process(delta: float) -> void:
+	# Açlık zamanla azalır (sadece canlıyken)
+	if rider_player_id >= 0 or true:
+		_hunger = maxf(_hunger - hunger_rate * delta, 0.0)
+	_update_hunger_bar()
+
+	# Animasyon
 	if rider_player_id < 0:
 		return
 	var sprite := $Sprite3D as Sprite3D
@@ -36,8 +53,9 @@ func _process(delta: float) -> void:
 		sprite.frame = 0
 
 func _physics_process(_delta: float) -> void:
+	var current_speed := _get_current_speed()
+
 	if rider_player_id >= 0:
-		# --- Binik hal: inme kontrolü ---
 		if _mount_ready and Input.is_action_just_pressed(INPUT_PREFIX % rider_player_id + "interact"):
 			dismount()
 			return
@@ -46,7 +64,7 @@ func _physics_process(_delta: float) -> void:
 		var input_dir := _get_rider_input()
 		if input_dir.length() > 0.15:
 			var direction := _input_to_camera_relative(input_dir)
-			velocity = direction * speed
+			velocity = direction * current_speed
 			_update_facing(input_dir.x)
 			look_at(global_position + direction, Vector3.UP)
 		else:
@@ -54,33 +72,56 @@ func _physics_process(_delta: float) -> void:
 
 		move_and_slide()
 
-		# Binik oyuncuyu atın üzerinde tut
 		if rider_node and is_instance_valid(rider_node):
 			rider_node.global_position = global_position
+
+## Açlığa göre anlık hızı döndürür.
+func _get_current_speed() -> float:
+	if _hunger <= 0.0:
+		return 0.0
+	var ratio := _hunger / max_hunger
+	# ratio 0→0, 0.5→0.5, 1.0→1.0
+	return speed * ratio
+
+## Açlık bar'ını günceller.
+func _update_hunger_bar():
+	var fill := $HungerBarFill as Sprite3D
+	var bg := $HungerBarBg as Sprite3D
+	if not fill or not bg:
+		return
+	if _hunger >= max_hunger:
+		fill.visible = false
+		bg.visible = false
+		return
+	fill.visible = true
+	bg.visible = true
+	var ratio := _hunger / max_hunger
+	fill.scale.x = maxf(ratio, 0.01)
+
+## Atı besle (player tarafından çağrılır).
+func feed(amount: float) -> void:
+	_hunger = minf(_hunger + amount, max_hunger)
+	_update_hunger_bar()
 
 ## Player tarafından çağrılır — ata bindirir.
 func mount_player(player: Node3D) -> bool:
 	if rider_player_id >= 0:
-		return false  # Zaten biri binmiş
-
+		return false
 	rider_node = player
 	rider_player_id = player.get("player_id") as int
-	_mount_ready = false  # ilk frame inmeyi algılama
+	_mount_ready = false
 	_update_rider_texture()
 	_apply_player_visibility(player, false)
 	return true
 
-## Oyuncuyu attan indirir.
 func dismount() -> void:
 	if not rider_node or not is_instance_valid(rider_node):
 		rider_player_id = -1
 		rider_node = null
 		return
-
 	var spawn_offset := -global_transform.basis.z * 0.5
 	rider_node.global_position = global_position + spawn_offset
 	_apply_player_visibility(rider_node, true)
-
 	rider_player_id = -1
 	rider_node = null
 	_update_rider_texture()

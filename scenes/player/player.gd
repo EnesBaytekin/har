@@ -13,7 +13,7 @@ var _player_id: int = 0
 ## Maksimum can
 @export var max_health: int = 5
 
-enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2 }
+enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2, APPLE = 3 }
 
 const INPUT_PREFIX = "p%d_"
 
@@ -28,6 +28,7 @@ const ITEM_TEXTURES := {
 	ItemType.WOOD: preload("res://assets/sprites/item_wood.png"),
 	ItemType.STONE: preload("res://assets/sprites/item_stone.png"),
 	ItemType.COAL: preload("res://assets/sprites/item_coal.png"),
+	ItemType.APPLE: preload("res://assets/sprites/item_apple.png"),
 }
 
 var _pickaxe_texture: Texture2D = null
@@ -79,10 +80,12 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "interact"):
 		_do_interact()
 
-	# Taş fırlatma (G veya L tuşu) — elinde STONE varsa
+	# G/L tuşu — taş fırlat veya elma yedir
 	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "throw"):
 		if carried_item_type == ItemType.STONE:
 			_throw_stone()
+		elif carried_item_type == ItemType.APPLE:
+			_try_feed_horse()
 
 	if input_dir.length() > 0.15:
 		var direction := _input_to_camera_relative(input_dir)
@@ -99,6 +102,11 @@ func _do_interact():
 		_drop_item()
 		return
 
+	# Önce yerde item varsa al
+	if _nearby_items.size() > 0:
+		_pickup_item()
+		return
+
 	for n in _nearby_interactables:
 		if not is_instance_valid(n):
 			continue
@@ -113,9 +121,6 @@ func _do_interact():
 			n.hit(player_id)
 			_play_pickaxe_anim()
 			return
-
-	if _nearby_items.size() > 0:
-		_pickup_item()
 
 ## Taşı fırlat — mermi oluştur, item elden gitsin.
 func _throw_stone():
@@ -137,10 +142,25 @@ func _throw_stone():
 	var stone_scene := preload("res://scenes/item/thrown_stone.tscn")
 	var stone := stone_scene.instantiate()
 	stone.global_position = global_position + dir * 0.5 + Vector3.UP * 0.3
-	stone.linear_velocity = dir * 5.0 + Vector3.UP * 1.0
+	stone.linear_velocity = dir * 8.0 + Vector3.UP * 1.0
 	get_tree().current_scene.add_child(stone)
 
 
+
+## Yakındaki ata elma yedirir.
+func _try_feed_horse():
+	if carried_item_type != ItemType.APPLE:
+		return
+	for n in _nearby_interactables:
+		if not is_instance_valid(n):
+			continue
+		if n.has_method("feed"):
+			var d := global_position.distance_squared_to(n.global_position)
+			if d < 9.0:
+				n.feed(40.0)
+				carried_item_type = -1
+				_update_carried_sprite()
+				return
 
 ## Hasar al.
 func take_damage(amount: int) -> void:
