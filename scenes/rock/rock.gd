@@ -1,26 +1,32 @@
 extends CharacterBody3D
 
+## 0=Kömür var, 1=Kömür bitti taş kaldı, 2=Tamamen kazıldı
+enum Stage { COAL, STONE, DEPLETED }
+
 ## Kaç vuruşta kömürün bittiği
 @export var max_coal: int = 3
-## Vuruş başına kömür azalması
-@export var coal_per_hit: int = 1
+## Kaç vuruşta taşın bittiği
+@export var max_stone: int = 3
 
+var _stage: Stage = Stage.COAL
 var _coal_left: int
-var _mined_out: bool = false
+var _stone_left: int
 var _nearby_players: Array[Node] = []
 
 const INPUT_PREFIX = "p%d_"
 
 const COAL_TEXTURE := preload("res://assets/sprites/coal_rock.png")
-const EMPTY_TEXTURE := preload("res://assets/sprites/rock.png")
+const ROCK_TEXTURE := preload("res://assets/sprites/rock.png")
+const PILE_TEXTURE := preload("res://assets/sprites/stone_pile.png")
 
 func _ready():
 	_coal_left = max_coal
+	_stone_left = max_stone
 	$InteractionArea.body_entered.connect(_on_body_entered)
 	$InteractionArea.body_exited.connect(_on_body_exited)
 
 func _physics_process(_delta: float) -> void:
-	if _mined_out:
+	if _stage == Stage.DEPLETED:
 		return
 
 	for player in _nearby_players:
@@ -32,36 +38,47 @@ func _physics_process(_delta: float) -> void:
 			break
 
 func _mine(_hitter_id: int) -> void:
-	if _mined_out:
+	if _stage == Stage.DEPLETED:
 		return
 
-	_coal_left -= coal_per_hit
 	_shake()
 
-	if _coal_left <= 0:
-		_exhaust()
+	match _stage:
+		Stage.COAL:
+			_coal_left -= 1
+			if _coal_left <= 0:
+				_to_stone_stage()
+		Stage.STONE:
+			_stone_left -= 1
+			if _stone_left <= 0:
+				_to_depleted()
 
 func _shake() -> void:
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:
 		return
-
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_QUAD)
 	tween.set_ease(Tween.EASE_OUT)
-
 	var orig_pos := sprite.position
 	tween.tween_property(sprite, "position:x", orig_pos.x + 0.12, 0.03)
 	tween.tween_property(sprite, "position:x", orig_pos.x - 0.10, 0.03)
 	tween.tween_property(sprite, "position:x", orig_pos.x + 0.06, 0.03)
 	tween.tween_property(sprite, "position:x", orig_pos.x, 0.03)
 
-func _exhaust() -> void:
-	_mined_out = true
+func _to_stone_stage() -> void:
+	_stage = Stage.STONE
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:
-		sprite.texture = EMPTY_TEXTURE
-	# Kaya kendisi kalsın, collision devam etsin (engel olarak)
+		sprite.texture = ROCK_TEXTURE
+
+func _to_depleted() -> void:
+	_stage = Stage.DEPLETED
+	var sprite := $Sprite3D as Sprite3D
+	if sprite:
+		sprite.texture = PILE_TEXTURE
+	# Tamamen kazılınca collision gitsin, içinden geçilebilsin
+	$CollisionShape3D.disabled = true
 
 func _on_body_entered(body: Node) -> void:
 	if body == self:
