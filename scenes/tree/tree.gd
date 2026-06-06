@@ -32,7 +32,7 @@ func _physics_process(_delta: float) -> void:
 			break
 
 ## Vuruş alındığında çağrılır.
-func _take_damage(hitter_id: int) -> void:
+func _take_damage(_hitter_id: int) -> void:
 	if _chopped:
 		return
 

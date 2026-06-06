@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://ck56eq5n1eoqb" path="res://assets/sprites/ground_tile.png" id="3_t"]
 [ext_resource type="PackedScene" path="res://scenes/horse_carriage/horse_carriage.tscn" id="4_h"]
 [ext_resource type="PackedScene" path="res://scenes/tree/tree.tscn" id="5_t"]
+[ext_resource type="PackedScene" path="res://scenes/rock/rock.tscn" id="6_r"]
 
 [sub_resource type="Environment" id="Environment_e1"]
 ambient_light_source = 1
@@ -71,3 +72,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -4)
 
 [node name="Tree5" parent="Trees" instance=ExtResource("5_t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+
+[node name="Rocks" type="Node3D" parent="."]
+
+[node name="Rock1" parent="Rocks" instance=ExtResource("6_r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0, -2)
+
+[node name="Rock2" parent="Rocks" instance=ExtResource("6_r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, -2)
+
+[node name="Rock3" parent="Rocks" instance=ExtResource("6_r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 0, -7)
+
+[node name="Rock4" parent="Rocks" instance=ExtResource("6_r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, -7)
+
+[node name="Rock5" parent="Rocks" instance=ExtResource("6_r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7)
