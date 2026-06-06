@@ -1,20 +1,20 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dn300itmtgel6"]
 
-[ext_resource type="Script" path="res://scenes/wagon/wagon.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/wagon.png" id="2"]
+[ext_resource type="Script" uid="uid://dbfdcv1ey5ybg" path="res://scenes/wagon/wagon.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://yb8ibo17eu1x" path="res://assets/sprites/wagon.png" id="2"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hjkl"]
 radius = 0.35
 height = 0.8
 
-[node name="Wagon" type="CharacterBody3D"]
+[node name="Wagon" type="CharacterBody3D" unique_id=232495262]
 script = ExtResource("1")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1675627445]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
 shape = SubResource("CapsuleShape3D_hjkl")
 
-[node name="Sprite3D" type="Sprite3D" parent="."]
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=773568303]
 transform = Transform3D(6, 0, 0, 0, 6, 0, 0, 0, 6, 0, 0.4, 0)
 billboard = 1
 texture_filter = 0

@@ -2,12 +2,10 @@ extends CharacterBody3D
 
 ## Takip edilecek hedef (atın NodePath'i)
 @export var target_node: NodePath
-## At ile araba arasındaki ideal mesafe
-@export var follow_distance: float = 1.5
-## İzin verilen maksimum mesafe (bu aşılırsa araba hızla toparlanır)
-@export var max_allowed_distance: float = 2.5
-## Takip sertliği (yüksek = daha hızlı toparlanır)
-@export var follow_stiffness: float = 4.0
+## At ile araba arasındaki AZAMİ mesafe (çember yarıçapı)
+@export var max_distance: float = 2.0
+## Vagonun toparlanma hızı (yüksek = daha sert çekiş)
+@export var follow_speed: float = 6.0
 
 var _target: Node3D = null
 
@@ -20,28 +18,24 @@ func _physics_process(delta: float) -> void:
 	if not horse or not is_instance_valid(horse):
 		return
 
-	# Atın arkasındaki ideal pozisyon
-	# (at +Z yönü = arkası, çünkü look_at ile -Z baktığı yön)
-	var ideal_pos := _calculate_ideal_position(horse)
-	var displacement := ideal_pos - global_position
-	var dist := displacement.length()
+	# At ile vagon arasındaki yatay uzaklık
+	var offset := global_position - horse.global_position
+	offset.y = 0
+	var dist := offset.length()
 
-	if dist > _arrival_threshold():
-		# displacement'i yatay düzleme izdüşüm
-		displacement.y = 0
-		var dir := displacement.normalized()
-		# Mesafe arttıkça hız da artsın
-		var speed := minf(follow_stiffness * 2.0, dist * follow_stiffness * delta * 8.0)
-		velocity = dir * speed
-		move_and_slide()
+	if dist > max_distance:
+		# Çember dışına çıktı → atın etrafındaki çemberin kenarına çek
+		var dir := offset.normalized()
+		var target := horse.global_position + dir * max_distance
+		target.y = global_position.y
+
+		# Üstel yumuşak geçişle hedefe yaklaş
+		var t := 1.0 - exp(-follow_speed * delta)
+		var new_pos := global_position.lerp(target, t)
+
+		velocity = (new_pos - global_position) / delta
 	else:
-		velocity = Vector3.ZERO
+		# Çember içinde → yavaşça dur
+		velocity = velocity.lerp(Vector3.ZERO, 1.0 - exp(-10.0 * delta))
 
-func _calculate_ideal_position(horse: Node3D) -> Vector3:
-	var behind := horse.global_transform.basis.z * follow_distance
-	var pos := horse.global_position + behind
-	pos.y = global_position.y  # kendi yüksekliğini koru
-	return pos
-
-func _arrival_threshold() -> float:
-	return follow_distance * 0.1
+	move_and_slide()
