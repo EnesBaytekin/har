@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/tree/tree.tscn" id="5_t"]
 [ext_resource type="PackedScene" path="res://scenes/rock/rock.tscn" id="6_r"]
 [ext_resource type="PackedScene" path="res://scenes/bear/bear.tscn" id="7_b"]
+[ext_resource type="PackedScene" path="res://scenes/ui/health_ui.tscn" id="8_u"]
 
 [sub_resource type="Environment" id="Environment_e1"]
 ambient_light_source = 1
@@ -93,3 +94,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7)
 
 [node name="Bear" parent="." instance=ExtResource("7_b")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 2)
+
+[node name="HealthUI" parent="." instance=ExtResource("8_u")]

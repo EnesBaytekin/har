@@ -2,6 +2,8 @@ extends CharacterBody3D
 
 ## Hareket hızı (koşarken)
 @export var speed: float = 3.0
+## Enrage hızı (taş çarpınca)
+@export var enrage_speed: float = 6.0
 ## Yorulunca bekleme süresi (saniye)
 @export var rest_time: float = 3.0
 ## Koşma süresi (saniye)
@@ -10,12 +12,16 @@ extends CharacterBody3D
 @export var attack_range: float = 1.5
 ## Hasar verme aralığı (saniye)
 @export var attack_cooldown: float = 1.5
-## Ateşten kaçma mesafesi
-@export var fire_fear_range: float = 5.0
+## Ateşten kaçma taban mesafesi (fire_level=4 için)
+@export var fire_fear_base: float = 2.0
 ## Hasar miktarı
 @export var damage: int = 1
+## Taş dikkat dağıtma süresi
+@export var investigate_time: float = 4.0
+## Enrage süresi
+@export var enrage_time: float = 6.0
 
-enum State { IDLE, CHASING, RESTING, FLEEING }
+enum State { IDLE, CHASING, RESTING, FLEEING, INVESTIGATING, ENRAGED }
 
 var _state: State = State.IDLE
 var _state_timer: float = 0.0
@@ -23,21 +29,25 @@ var _attack_timer: float = 0.0
 var _anim_time: float = 0.0
 var _target: Node3D = null
 var _nearest_fire: Node3D = null
+var _investigate_target: Vector3 = Vector3.ZERO
+var _enrage_target: Node3D = null
+var _current_speed: float = 3.0
 
 const ANIM_SPEED: float = 10.0
 const BEAR_TEXTURE := preload("res://assets/sprites/bear.png")
 
 func _ready():
+	add_to_group("bears")
 	$Sprite3D.texture = BEAR_TEXTURE
 	$Sprite3D.hframes = 4
+	_current_speed = speed
 	_state = State.IDLE
-	_state_timer = 1.0  # 1 saniye bekle sonra kovalamaya başla
+	_state_timer = 1.0
 
 func _process(delta: float) -> void:
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:
 		return
-
 	if velocity.length_squared() > 0.5:
 		_anim_time += delta * ANIM_SPEED
 		sprite.frame = int(_anim_time) % 4
@@ -49,13 +59,14 @@ func _physics_process(delta: float) -> void:
 	_attack_timer = maxf(_attack_timer - delta, 0.0)
 	_state_timer -= delta
 
-	# En yakın oyuncuyu ve ateşi bul
 	_target = _find_nearest_player()
 	_nearest_fire = _find_nearest_fire()
 
-	# Ateşe çok yaklaştıysak kaç
-	if _nearest_fire and global_position.distance_to(_nearest_fire.global_position) < fire_fear_range:
-		_state = State.FLEEING
+	# Ateş korkusu — seviyeye göre
+	var fear_radius := _get_fire_fear_radius()
+	if _nearest_fire and global_position.distance_to(_nearest_fire.global_position) < fear_radius:
+		if _state != State.ENRAGED:
+			_state = State.FLEEING
 
 	match _state:
 		State.IDLE:
@@ -63,6 +74,7 @@ func _physics_process(delta: float) -> void:
 			if _state_timer <= 0 and _target:
 				_state = State.CHASING
 				_state_timer = chase_time
+				_current_speed = speed
 
 		State.CHASING:
 			if _target:
@@ -70,12 +82,11 @@ func _physics_process(delta: float) -> void:
 				dir.y = 0
 				var dist := dir.length()
 				if dist > 0.5:
-					velocity = dir.normalized() * speed
+					velocity = dir.normalized() * _current_speed
 					_update_facing(dir.normalized())
 				else:
 					velocity = Vector3.ZERO
 
-				# Hasar ver
 				if dist < attack_range and _attack_timer <= 0:
 					if _target.has_method("take_damage"):
 						_target.take_damage(damage)
@@ -93,25 +104,89 @@ func _physics_process(delta: float) -> void:
 			if _state_timer <= 0:
 				_state = State.CHASING
 				_state_timer = chase_time
+				_current_speed = speed
 
 		State.FLEEING:
 			if _nearest_fire:
 				var away := global_position - _nearest_fire.global_position
 				away.y = 0
 				if away.length_squared() > 0.1:
-					velocity = away.normalized() * speed
+					velocity = away.normalized() * _current_speed
 					_update_facing(away.normalized())
 				else:
 					velocity = Vector3.ZERO
-				# Yeterince uzaklaştıysak normal state'e dön
-				if away.length() > fire_fear_range * 1.5:
+				if away.length() > fear_radius * 2.0:
 					_state = State.IDLE
 					_state_timer = 1.0
 			else:
 				_state = State.IDLE
 				_state_timer = 1.0
 
+		State.INVESTIGATING:
+			var to_target := _investigate_target - global_position
+			to_target.y = 0
+			if to_target.length() > 0.5:
+				velocity = to_target.normalized() * speed * 0.7
+				_update_facing(to_target.normalized())
+			else:
+				velocity = Vector3.ZERO
+
+			if _state_timer <= 0:
+				_state = State.IDLE
+				_state_timer = 1.0
+
+		State.ENRAGED:
+			# Enraged: direkt taşı atan oyuncuya saldır
+			if _enrage_target and is_instance_valid(_enrage_target):
+				var dir := (_enrage_target.global_position - global_position)
+				dir.y = 0
+				var dist := dir.length()
+				if dist > 0.5:
+					velocity = dir.normalized() * _current_speed
+					_update_facing(dir.normalized())
+				else:
+					velocity = Vector3.ZERO
+
+				if dist < attack_range and _attack_timer <= 0:
+					if _enrage_target.has_method("take_damage"):
+						_enrage_target.take_damage(damage)
+					_attack_timer = attack_cooldown * 0.7
+			else:
+				velocity = Vector3.ZERO
+
+			if _state_timer <= 0:
+				_state = State.CHASING
+				_state_timer = chase_time
+				_current_speed = speed
+
 	move_and_slide()
+
+func _get_fire_fear_radius() -> float:
+	if not _nearest_fire or not _nearest_fire.has_method("get_fire_level"):
+		return 0.0
+	var level = int(_nearest_fire.get_fire_level())
+	match level:
+		4: return 2.5
+		3: return 1.8
+		2: return 1.2
+		1: return 0.6
+		_: return 0.0
+
+## Yakına taş düştü — incelemeye git.
+func bear_notice_stone(pos: Vector3) -> void:
+	if _state == State.ENRAGED:
+		return
+	_state = State.INVESTIGATING
+	_investigate_target = pos
+	_state_timer = investigate_time
+	_current_speed = speed
+
+## Taş direkt çarptı — sinirlen.
+func bear_hit_by_stone() -> void:
+	_state = State.ENRAGED
+	_state_timer = enrage_time
+	_current_speed = enrage_speed
+	_enrage_target = _find_nearest_player()
 
 func _update_facing(dir: Vector3) -> void:
 	var sprite := $Sprite3D as Sprite3D
@@ -132,7 +207,6 @@ func _find_nearest_player() -> Node3D:
 	return best
 
 func _find_nearest_fire() -> Node3D:
-	# Wagon'ların fire_level'ına bakarız
 	var best: Node3D = null
 	var best_dist := INF
 	var all := get_tree().get_nodes_in_group("wagons")

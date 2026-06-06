@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://stone_thrown_01"]
+
+[ext_resource type="Script" path="res://scenes/item/thrown_stone.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/item_stone.png" id="2"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_stn"]
+radius = 0.15
+
+[node name="ThrownStone" type="RigidBody3D"]
+script = ExtResource("1")
+gravity_scale = 0.5
+continuous_cd = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_stn")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+billboard = 1
+texture_filter = 0
+texture = ExtResource("2")

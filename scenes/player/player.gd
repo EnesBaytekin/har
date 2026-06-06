@@ -9,8 +9,9 @@ extends CharacterBody3D
 		return _player_id
 var _player_id: int = 0
 @export var speed: float = 5.0
-## Hareket yönüne göre sprite'ı yatay flip et (Editor'den aç/kapa)
 @export var flip_on_move: bool = true
+## Maksimum can
+@export var max_health: int = 5
 
 enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2 }
 
@@ -31,18 +32,23 @@ const ITEM_TEXTURES := {
 
 var _pickaxe_texture: Texture2D = null
 
-## Taşınan item türü (-1 = boş)
 var carried_item_type: int = -1
 var _nearby_items: Array[Node] = []
 var _nearby_interactables: Array[Node] = []
 
-## Animasyon
 var _anim_time: float = 0.0
-const ANIM_SPEED: float = 10.0  # frame/saniye
+const ANIM_SPEED: float = 10.0
 var _is_pickaxing: bool = false
 var _normal_texture: Texture2D = null
 
+## Can sistemi
+var health: int = 5
+var _invincible_timer: float = 0.0
+const INVINCIBLE_TIME: float = 1.0
+
+
 func _ready():
+	health = max_health
 	_update_texture()
 	add_to_group("players")
 	$PickupArea.area_entered.connect(_on_item_area_entered)
@@ -51,12 +57,13 @@ func _ready():
 	$InteractArea.body_exited.connect(_on_interact_body_exited)
 
 func _process(delta: float) -> void:
+	_invincible_timer = maxf(_invincible_timer - delta, 0.0)
+
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:
 		return
 
 	if _is_pickaxing:
-		# Pickaxe animasyonunu elle sürme — tween halleder
 		return
 
 	if velocity.length_squared() > 0.01:
@@ -69,9 +76,13 @@ func _process(delta: float) -> void:
 func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
 
-	# --- Interact (F/K) — priority sırası: ---
 	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "interact"):
 		_do_interact()
+
+	# Taş fırlatma (G veya L tuşu) — elinde STONE varsa
+	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "throw"):
+		if carried_item_type == ItemType.STONE:
+			_throw_stone()
 
 	if input_dir.length() > 0.15:
 		var direction := _input_to_camera_relative(input_dir)
@@ -83,14 +94,11 @@ func _physics_process(_delta: float) -> void:
 
 	move_and_slide()
 
-## Priority sırasıyla interact yapar.
 func _do_interact():
-	# 1. Öncelik: Elde item varsa bırak
 	if carried_item_type >= 0:
 		_drop_item()
 		return
 
-	# 2. Öncelik: Yakında at varsa bin
 	for n in _nearby_interactables:
 		if not is_instance_valid(n):
 			continue
@@ -98,7 +106,6 @@ func _do_interact():
 			if n.mount_player(self):
 				return
 
-	# 3. Öncelik: Yakında kesilecek/kazılacak varsa vur
 	for n in _nearby_interactables:
 		if not is_instance_valid(n):
 			continue
@@ -107,9 +114,60 @@ func _do_interact():
 			_play_pickaxe_anim()
 			return
 
-	# 4. Öncelik: Yerde item varsa al
 	if _nearby_items.size() > 0:
 		_pickup_item()
+
+## Taşı fırlat — mermi oluştur, item elden gitsin.
+func _throw_stone():
+	if carried_item_type != ItemType.STONE:
+		return
+
+	# Eldeki taşı düşür
+	carried_item_type = -1
+	_update_carried_sprite()
+
+	# Fırlatma yönü (kameranın forward'ı)
+	var camera := get_viewport().get_camera_3d()
+	var dir := Vector3.FORWARD
+	if camera:
+		dir = -camera.global_transform.basis.z
+		dir.y = 0
+		if dir.length_squared() < 0.001:
+			dir = Vector3.FORWARD
+		dir = dir.normalized()
+
+	# Mermiyi oluştur
+	var stone_scene := preload("res://scenes/item/thrown_stone.tscn")
+	var stone := stone_scene.instantiate()
+	stone.global_position = global_position + dir * 0.5 + Vector3.UP * 0.3
+	stone.linear_velocity = dir * 15.0 + Vector3.UP * 2.0
+	get_tree().current_scene.add_child(stone)
+
+
+
+## Hasar al.
+func take_damage(amount: int) -> void:
+	if _invincible_timer > 0:
+		return
+	_invincible_timer = INVINCIBLE_TIME
+
+	health -= amount
+	if health <= 0:
+		health = 0
+		# Ölüm — şimdilik canı geri doldur
+		health = max_health
+
+
+
+	# Sarsılma efekti
+	var sprite := $Sprite3D as Sprite3D
+	if sprite:
+		var tween := create_tween()
+		tween.set_trans(Tween.TRANS_QUAD)
+		var orig := sprite.position.x
+		tween.tween_property(sprite, "position:x", orig + 0.2, 0.04)
+		tween.tween_property(sprite, "position:x", orig - 0.15, 0.04)
+		tween.tween_property(sprite, "position:x", orig, 0.04)
 
 func _update_texture():
 	var sprite := $Sprite3D as Sprite3D
@@ -128,30 +186,23 @@ func _update_carried_sprite():
 	else:
 		cs.visible = false
 
-## Kazma animasyonunu oynatır (2 frame, sonra eski haline döner).
 func _play_pickaxe_anim():
 	if _is_pickaxing:
 		return
 	_is_pickaxing = true
-
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:
 		_is_pickaxing = false
 		return
-
-	# Texture'ı runtime'da yükle
 	if not _pickaxe_texture:
 		_pickaxe_texture = load("res://assets/sprites/player_pickaxe.png")
 	if not _pickaxe_texture:
 		_is_pickaxing = false
 		return
-
 	_normal_texture = sprite.texture
 	sprite.texture = _pickaxe_texture
 	sprite.hframes = 2
 	sprite.frame = 0
-
-	# Tween ile 0 → 1 → revert
 	var tween := create_tween()
 	tween.tween_interval(0.08)
 	tween.tween_callback(func():
@@ -161,7 +212,6 @@ func _play_pickaxe_anim():
 	tween.tween_interval(0.08)
 	tween.tween_callback(_revert_texture)
 
-## Pickaxe animasyonu bitince normal sprite'a döner.
 func _revert_texture():
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite or not is_instance_valid(sprite):
@@ -178,7 +228,6 @@ func _revert_texture():
 func _pickup_item():
 	if carried_item_type >= 0 or _nearby_items.size() == 0:
 		return
-
 	var nearest: DroppedItem = null
 	var nearest_dist := 9999.0
 	var pos := global_position
@@ -192,10 +241,8 @@ func _pickup_item():
 		if d < nearest_dist:
 			nearest_dist = d
 			nearest = di
-
 	if not nearest:
 		return
-
 	carried_item_type = nearest.item_type
 	nearest.take()
 	_update_carried_sprite()
@@ -203,26 +250,13 @@ func _pickup_item():
 func _drop_item():
 	if carried_item_type < 0:
 		return
-
 	var scene := preload("res://scenes/item/dropped_item.tscn")
 	var di := scene.instantiate() as DroppedItem
 	di.item_type = carried_item_type
 	di.global_position = global_position
 	get_tree().current_scene.add_child(di)
-
 	carried_item_type = -1
 	_update_carried_sprite()
-
-## Düşmanlardan hasar alır.
-func take_damage(amount: int) -> void:
-	var sprite := $Sprite3D as Sprite3D
-	if sprite:
-		var tween := create_tween()
-		tween.set_trans(Tween.TRANS_QUAD)
-		var orig := sprite.position.x
-		tween.tween_property(sprite, "position:x", orig + 0.2, 0.04)
-		tween.tween_property(sprite, "position:x", orig - 0.15, 0.04)
-		tween.tween_property(sprite, "position:x", orig, 0.04)
 
 # --- Signal handlers ---
 
