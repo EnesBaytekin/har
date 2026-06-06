@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c7kaerhw83twf"]
 
-[ext_resource type="PackedScene" path="res://scenes/horse/horse.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://d0luyyk1qtm7s" path="res://scenes/horse/horse.tscn" id="1"]
 [ext_resource type="PackedScene" uid="uid://dn300itmtgel6" path="res://scenes/wagon/wagon.tscn" id="2"]
 
 [node name="HorseCarriage" type="Node3D" unique_id=1281608843]
