@@ -12,7 +12,6 @@ var _player_id: int = 0
 ## Hareket yönüne göre sprite'ı yatay flip et (Editor'den aç/kapa)
 @export var flip_on_move: bool = true
 
-# ItemType enum (dropped_item.gd ile aynı)
 enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2 }
 
 const INPUT_PREFIX = "p%d_"
@@ -33,21 +32,23 @@ const ITEM_TEXTURES := {
 ## Taşınan item türü (-1 = boş)
 var carried_item_type: int = -1
 var _nearby_items: Array[Node] = []
+var _nearby_interactables: Array[Node] = []
 
 func _ready():
 	_update_texture()
-	$PickupArea.area_entered.connect(_on_pickup_area_entered)
-	$PickupArea.area_exited.connect(_on_pickup_area_exited)
+	# Item'lar Area3D olduğu için area sinyalleri
+	$PickupArea.area_entered.connect(_on_item_area_entered)
+	$PickupArea.area_exited.connect(_on_item_area_exited)
+	# Ağaç/kaya/at CharacterBody3D olduğu için body sinyalleri
+	$InteractArea.body_entered.connect(_on_interact_body_entered)
+	$InteractArea.body_exited.connect(_on_interact_body_exited)
 
 func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
 
-	# Item alma/bırakma
+	# --- Interact (F/K) — priority sırası: ---
 	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "interact"):
-		if carried_item_type >= 0:
-			_drop_item()
-		elif _nearby_items.size() > 0:
-			_pickup_item()
+		_do_interact()
 
 	if input_dir.length() > 0.15:
 		var direction := _input_to_camera_relative(input_dir)
@@ -59,6 +60,33 @@ func _physics_process(_delta: float) -> void:
 
 	move_and_slide()
 
+## Priority sırasıyla interact yapar.
+func _do_interact():
+	# 1. Öncelik: Elde item varsa bırak
+	if carried_item_type >= 0:
+		_drop_item()
+		return
+
+	# 2. Öncelik: Yakında at varsa bin
+	for n in _nearby_interactables:
+		if not is_instance_valid(n):
+			continue
+		if n.has_method("mount_player"):
+			if n.mount_player(self):
+				return
+
+	# 3. Öncelik: Yakında kesilecek/kazılacak varsa vur
+	for n in _nearby_interactables:
+		if not is_instance_valid(n):
+			continue
+		if n.has_method("hit"):
+			n.hit(player_id)
+			return
+
+	# 4. Öncelik: Yerde item varsa al
+	if _nearby_items.size() > 0:
+		_pickup_item()
+
 func _update_texture():
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:
@@ -66,7 +94,6 @@ func _update_texture():
 	if PLAYER_TEXTURES.has(player_id):
 		sprite.texture = PLAYER_TEXTURES[player_id]
 
-## Taşıma sprite'ını günceller.
 func _update_carried_sprite():
 	var cs := $CarriedItem as Sprite3D
 	if not cs:
@@ -77,7 +104,6 @@ func _update_carried_sprite():
 	else:
 		cs.visible = false
 
-## Yerdeki en yakın item'ı alır.
 func _pickup_item():
 	if carried_item_type >= 0 or _nearby_items.size() == 0:
 		return
@@ -103,7 +129,6 @@ func _pickup_item():
 	nearest.take()
 	_update_carried_sprite()
 
-## Taşınan item'ı yere bırakır.
 func _drop_item():
 	if carried_item_type < 0:
 		return
@@ -112,42 +137,47 @@ func _drop_item():
 	var di := scene.instantiate() as DroppedItem
 	di.item_type = carried_item_type
 	di.global_position = global_position + global_transform.basis.x * 1.5
-
 	get_tree().current_scene.add_child(di)
 
 	carried_item_type = -1
 	_update_carried_sprite()
 
-func _on_pickup_area_entered(area: Area3D) -> void:
+# --- Signal handlers ---
+
+func _on_item_area_entered(area: Area3D) -> void:
 	var di := area.get_parent() as DroppedItem
 	if di and di not in _nearby_items:
 		_nearby_items.append(di)
 
-func _on_pickup_area_exited(area: Area3D) -> void:
+func _on_item_area_exited(area: Area3D) -> void:
 	var di := area.get_parent() as DroppedItem
 	if di:
 		_nearby_items.erase(di)
 
-## Input yönünü kameranın bakış açısına göre dönüştürür.
+func _on_interact_body_entered(body: Node) -> void:
+	if body == self:
+		return
+	if body not in _nearby_interactables:
+		_nearby_interactables.append(body)
+
+func _on_interact_body_exited(body: Node) -> void:
+	_nearby_interactables.erase(body)
+
+# --- Input helpers ---
+
 func _input_to_camera_relative(input_dir: Vector2) -> Vector3:
 	var camera := get_viewport().get_camera_3d()
 	if not camera:
 		return Vector3(input_dir.x, 0, input_dir.y).normalized()
-
 	var forward := -camera.global_transform.basis.z
 	var right := camera.global_transform.basis.x
 	forward.y = 0
 	right.y = 0
-
 	if forward.length_squared() < 0.001:
 		forward = Vector3(0, 0, -1)
 	if right.length_squared() < 0.001:
 		right = Vector3(1, 0, 0)
-
-	forward = forward.normalized()
-	right = right.normalized()
-
-	return (forward * -input_dir.y + right * input_dir.x).normalized()
+	return (forward.normalized() * -input_dir.y + right.normalized() * input_dir.x).normalized()
 
 func _update_facing(input_x: float) -> void:
 	if not flip_on_move or input_x == 0:
@@ -161,7 +191,6 @@ func _get_input() -> Vector2:
 	var stick_y := Input.get_joy_axis(player_id, JOY_AXIS_LEFT_Y)
 	if abs(stick_x) > 0.15 or abs(stick_y) > 0.15:
 		return Vector2(stick_x, stick_y)
-
 	var prefix := INPUT_PREFIX % player_id
 	return Vector2(
 		Input.get_axis(prefix + "move_left", prefix + "move_right"),

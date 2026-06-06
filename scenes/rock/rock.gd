@@ -11,9 +11,7 @@ enum Stage { COAL, STONE, DEPLETED }
 var _stage: Stage = Stage.COAL
 var _coal_left: int
 var _stone_left: int
-var _nearby_players: Array[Node] = []
 
-const INPUT_PREFIX = "p%d_"
 const DROPPED_ITEM = preload("res://scenes/item/dropped_item.tscn")
 
 const COAL_TEXTURE := preload("res://assets/sprites/coal_rock.png")
@@ -23,22 +21,9 @@ const PILE_TEXTURE := preload("res://assets/sprites/stone_pile.png")
 func _ready():
 	_coal_left = max_coal
 	_stone_left = max_stone
-	$InteractionArea.body_entered.connect(_on_body_entered)
-	$InteractionArea.body_exited.connect(_on_body_exited)
 
-func _physics_process(_delta: float) -> void:
-	if _stage == Stage.DEPLETED:
-		return
-
-	for player in _nearby_players:
-		if not is_instance_valid(player):
-			continue
-		var pid := player.get("player_id") as int
-		if pid >= 0 and Input.is_action_just_pressed(INPUT_PREFIX % pid + "interact"):
-			_mine(pid)
-			break
-
-func _mine(_hitter_id: int) -> void:
+## Player tarafından çağrılır — kayaya bir kazma vuruşu.
+func hit(_hitter_id: int) -> void:
 	if _stage == Stage.DEPLETED:
 		return
 
@@ -72,28 +57,18 @@ func _to_stone_stage() -> void:
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:
 		sprite.texture = ROCK_TEXTURE
-	_spawn_item(2)  # ItemType.COAL = 2
+	_spawn_item(2)  # COAL
 
 func _to_depleted() -> void:
 	_stage = Stage.DEPLETED
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:
 		sprite.texture = PILE_TEXTURE
-	# Tamamen kazılınca collision gitsin, içinden geçilebilsin
 	$CollisionShape3D.disabled = true
-	_spawn_item(1)  # ItemType.STONE = 1
+	_spawn_item(1)  # STONE
 
 func _spawn_item(item_type: int) -> void:
 	var di := DROPPED_ITEM.instantiate() as DroppedItem
 	di.item_type = item_type
 	di.global_position = global_position
 	get_tree().current_scene.add_child(di)
-
-func _on_body_entered(body: Node) -> void:
-	if body == self:
-		return
-	if "player_id" in body and body not in _nearby_players:
-		_nearby_players.append(body)
-
-func _on_body_exited(body: Node) -> void:
-	_nearby_players.erase(body)

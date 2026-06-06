@@ -10,6 +10,9 @@ height = 1.6196289
 [sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
 radius = 1.5
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_interact"]
+radius = 2.0
+
 [node name="Player" type="CharacterBody3D" unique_id=1411394763]
 script = ExtResource("1_3pqrm")
 
@@ -33,3 +36,8 @@ visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PickupArea"]
 shape = SubResource("SphereShape3D_pickup")
+
+[node name="InteractArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractArea"]
+shape = SubResource("SphereShape3D_interact")
