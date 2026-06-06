@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/bear/bear.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/bear.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bar.png" id="3_bar"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_br01"]
 radius = 0.35
@@ -20,3 +21,20 @@ billboard = 1
 texture_filter = 0
 texture = ExtResource("2")
 hframes = 4
+
+[node name="HealthBarBg" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 2.0, 0)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("3_bar")
+modulate = Color(0.15, 0.15, 0.15, 1)
+
+[node name="HealthBarFill" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 2.0, 0.01)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("3_bar")
+render_priority = 1
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 8)
+modulate = Color(0.8, 0.2, 0.2, 1)

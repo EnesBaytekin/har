@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ca57nqhncgtxp" path="res://scenes/player/player.gd" id="1_3pqrm"]
 [ext_resource type="Texture2D" uid="uid://player1" path="res://assets/sprites/player1.png" id="2_4mjhv"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bar.png" id="5_bar"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_r4nd"]
 radius = 0.234375
@@ -32,6 +33,23 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.4, 0.5, 0)
 visible = false
 billboard = 1
 texture_filter = 0
+
+[node name="HealthBarBg" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 1.7, 0)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("5_bar")
+modulate = Color(0.15, 0.15, 0.15, 1)
+
+[node name="HealthBarFill" type="Sprite3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 1.7, 0.01)
+billboard = 2
+texture_filter = 0
+texture = ExtResource("5_bar")
+render_priority = 1
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 8)
+modulate = Color(0.2, 0.8, 0.2, 1)
 
 [node name="PickupArea" type="Area3D" parent="." unique_id=1731631625]
 

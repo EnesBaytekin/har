@@ -26,14 +26,14 @@ texture = ExtResource("2")
 hframes = 4
 
 [node name="HungerBarBg" type="Sprite3D" parent="."]
-transform = Transform3D(3, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 2.0, 0)
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 2.0, 0)
 billboard = 2
 texture_filter = 0
 texture = ExtResource("3_bar")
 modulate = Color(0.15, 0.15, 0.15, 1)
 
 [node name="HungerBarFill" type="Sprite3D" parent="."]
-transform = Transform3D(3, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 2.0, 0.01)
+transform = Transform3D(1.5, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 2.0, 0.01)
 billboard = 2
 texture_filter = 0
 texture = ExtResource("3_bar")

@@ -51,6 +51,7 @@ const INVINCIBLE_TIME: float = 1.0
 func _ready():
 	health = max_health
 	_update_texture()
+	_update_health_bar()
 	add_to_group("players")
 	$PickupArea.area_entered.connect(_on_item_area_entered)
 	$PickupArea.area_exited.connect(_on_item_area_exited)
@@ -162,6 +163,16 @@ func _try_feed_horse():
 				_update_carried_sprite()
 				return
 
+## Can bar'ını günceller.
+func _update_health_bar():
+	var fill := $HealthBarFill as Sprite3D
+	if not fill:
+		return
+	var ratio := float(health) / float(max_health)
+	var w := ratio * 64.0
+	fill.region_rect.size.x = w
+	fill.offset.x = (64.0 - w) / -2.0
+
 ## Hasar al.
 func take_damage(amount: int) -> void:
 	if _invincible_timer > 0:
@@ -173,8 +184,7 @@ func take_damage(amount: int) -> void:
 		health = 0
 		# Ölüm — şimdilik canı geri doldur
 		health = max_health
-
-
+	_update_health_bar()
 
 	# Sarsılma efekti
 	var sprite := $Sprite3D as Sprite3D

@@ -9,11 +9,13 @@ extends CharacterBody3D
 ## Koşma süresi (saniye)
 @export var chase_time: float = 5.0
 ## Oyuncuya ne kadar yaklaşınca hasar verir
-@export var attack_range: float = 1.5
+@export var attack_range: float = 1.0
 ## Hasar verme aralığı (saniye)
 @export var attack_cooldown: float = 1.5
 ## Ateşten kaçma taban mesafesi (fire_level=4 için)
 @export var fire_fear_base: float = 2.0
+## Maksimum can
+@export var max_health: int = 100
 ## Hasar miktarı
 @export var damage: int = 1
 ## Taş dikkat dağıtma süresi
@@ -32,12 +34,15 @@ var _nearest_fire: Node3D = null
 var _investigate_target: Vector3 = Vector3.ZERO
 var _enrage_target: Node3D = null
 var _current_speed: float = 3.0
+var health: int = 10
 
 const ANIM_SPEED: float = 10.0
 const BEAR_TEXTURE := preload("res://assets/sprites/bear.png")
 
 func _ready():
 	add_to_group("bears")
+	health = max_health
+	_update_health_bar()
 	$Sprite3D.texture = BEAR_TEXTURE
 	$Sprite3D.hframes = 4
 	_current_speed = speed
@@ -62,7 +67,6 @@ func _physics_process(delta: float) -> void:
 	_target = _find_nearest_player()
 	_nearest_fire = _find_nearest_fire()
 
-	# Ateş korkusu — seviyeye göre
 	var fear_radius := _get_fire_fear_radius()
 	if _nearest_fire and global_position.distance_to(_nearest_fire.global_position) < fear_radius:
 		if _state != State.ENRAGED:
@@ -81,16 +85,17 @@ func _physics_process(delta: float) -> void:
 				var dir := (_target.global_position - global_position)
 				dir.y = 0
 				var dist := dir.length()
-				if dist > 0.5:
+				if dist > attack_range:
 					velocity = dir.normalized() * _current_speed
 					_update_facing(dir.normalized())
 				else:
 					velocity = Vector3.ZERO
 
 				if dist < attack_range and _attack_timer <= 0:
-					if _target.has_method("take_damage"):
+					if _target.has_method("take_damage") and is_instance_valid(_target):
+						print("Bear attacks! dist=", dist, " damage=", damage)
 						_target.take_damage(damage)
-					_attack_timer = attack_cooldown
+						_attack_timer = attack_cooldown
 			else:
 				velocity = Vector3.ZERO
 
@@ -123,7 +128,6 @@ func _physics_process(delta: float) -> void:
 				_state_timer = 1.0
 
 		State.INVESTIGATING:
-			# Oyuncu bana doğru geliyorsa taşı bırak, player'a dön
 			if _target:
 				var to_player := _target.global_position - global_position
 				to_player.y = 0
@@ -152,7 +156,6 @@ func _physics_process(delta: float) -> void:
 				_state_timer = 1.0
 
 		State.ENRAGED:
-			# Enraged: direkt taşı atan oyuncuya saldır
 			if _enrage_target and is_instance_valid(_enrage_target):
 				var dir := (_enrage_target.global_position - global_position)
 				dir.y = 0
@@ -188,7 +191,6 @@ func _get_fire_fear_radius() -> float:
 		1: return 0.6
 		_: return 0.0
 
-## Yakına taş düştü — incelemeye git.
 func bear_notice_stone(pos: Vector3) -> void:
 	if _state == State.ENRAGED:
 		return
@@ -197,14 +199,18 @@ func bear_notice_stone(pos: Vector3) -> void:
 	_state_timer = investigate_time
 	_current_speed = speed
 
-## Oyuncu tarafından vuruldu (kürekle/kazmayla).
+## Oyuncu tarafından vuruldu — can azalır.
 func hit(_hitter_id: int) -> void:
+	health -= 1
+	_update_health_bar()
+	if health <= 0:
+		queue_free()
+		return
 	if _state == State.INVESTIGATING or _state == State.IDLE:
 		_state = State.CHASING
 		_state_timer = chase_time
 		_current_speed = speed
 
-## Taş direkt çarptı — sinirlen.
 func bear_hit_by_stone() -> void:
 	_state = State.ENRAGED
 	_state_timer = enrage_time
@@ -216,6 +222,16 @@ func _update_facing(dir: Vector3) -> void:
 	if not sprite or dir.x == 0:
 		return
 	sprite.flip_h = dir.x < 0
+
+## Can bar'ını günceller.
+func _update_health_bar():
+	var fill := $HealthBarFill as Sprite3D
+	if not fill:
+		return
+	var ratio := float(health) / float(max_health)
+	var w := ratio * 64.0
+	fill.region_rect.size.x = w
+	fill.offset.x = (64.0 - w) / -2.0
 
 func _find_nearest_player() -> Node3D:
 	var best: Node3D = null
