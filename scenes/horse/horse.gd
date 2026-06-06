@@ -32,14 +32,12 @@ const RIDER_TEXTURES := {
 
 func _ready():
 	_hunger = max_hunger
-
-func _process(delta: float) -> void:
-	# Açlık zamanla azalır (sadece canlıyken)
-	if rider_player_id >= 0 or true:
-		_hunger = maxf(_hunger - hunger_rate * delta, 0.0)
 	_update_hunger_bar()
 
-	# Animasyon
+func _process(delta: float) -> void:
+	_hunger = maxf(_hunger - hunger_rate * delta, 0.0)
+	_update_hunger_bar()
+
 	if rider_player_id < 0:
 		return
 	var sprite := $Sprite3D as Sprite3D
@@ -75,29 +73,22 @@ func _physics_process(_delta: float) -> void:
 		if rider_node and is_instance_valid(rider_node):
 			rider_node.global_position = global_position
 
-## Açlığa göre anlık hızı döndürür.
 func _get_current_speed() -> float:
 	if _hunger <= 0.0:
 		return 0.0
 	var ratio := _hunger / max_hunger
-	# ratio 0→0, 0.5→0.5, 1.0→1.0
 	return speed * ratio
 
-## Açlık bar'ını günceller.
+## Açlık bar'ını günceller (region_rect ile soldan kırpar).
 func _update_hunger_bar():
 	var fill := $HungerBarFill as Sprite3D
-	var bg := $HungerBarBg as Sprite3D
-	if not fill or not bg:
+	if not fill:
 		return
-	if _hunger >= max_hunger:
-		fill.visible = false
-		bg.visible = false
-		return
-	fill.visible = true
-	bg.visible = true
 	var ratio := _hunger / max_hunger
-	fill.scale.x = maxf(ratio, 0.01)
-
+	# Soldan itibaren kırp: ratio=1 → 64px, ratio=0 → 0px
+	var w := ratio * 64.0
+	fill.region_rect.size.x = w
+	fill.offset.x = (64.0 - w) / -2.0
 ## Atı besle (player tarafından çağrılır).
 func feed(amount: float) -> void:
 	_hunger = minf(_hunger + amount, max_hunger)
