@@ -26,13 +26,12 @@ func _input(event: InputEvent) -> void:
 				_target_angle = _normalize_angle(_target_angle + ROTATION_STEP)
 
 func _process(delta: float) -> void:
-	# Gamepad tetikleri ile kamera dönüşü
-	var lt := Input.get_joy_axis(0, JOY_AXIS_TRIGGER_LEFT)
-	var rt := Input.get_joy_axis(0, JOY_AXIS_TRIGGER_RIGHT)
-	if lt > 0.5:
-		_target_angle = _normalize_angle(_target_angle - rotation_speed * lt * delta)
-	if rt > 0.5:
-		_target_angle = _normalize_angle(_target_angle + rotation_speed * rt * delta)
+	# Gamepad LB/RB ile kamera dönüşü (tüm oyuncular)
+	for pid in range(4):
+		if Input.is_joy_button_pressed(pid, JOY_BUTTON_LEFT_SHOULDER):
+			_target_angle = _normalize_angle(_target_angle - rotation_speed * delta * 1.5)
+		if Input.is_joy_button_pressed(pid, JOY_BUTTON_RIGHT_SHOULDER):
+			_target_angle = _normalize_angle(_target_angle + rotation_speed * delta * 1.5)
 
 	var current_deg := rad_to_deg(rotation.y)
 

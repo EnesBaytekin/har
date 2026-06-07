@@ -209,6 +209,10 @@ func hit(_hitter_id: int) -> void:
 	health -= 1
 	_update_health_bar()
 	if health <= 0:
+		var meat := preload("res://scenes/item/dropped_item.tscn").instantiate() as DroppedItem
+		meat.item_type = 4  # RAW_MEAT
+		meat.global_position = global_position
+		get_tree().current_scene.add_child(meat)
 		queue_free()
 		return
 	if _state == State.INVESTIGATING or _state == State.IDLE:
@@ -221,6 +225,10 @@ func take_damage(amount: int) -> void:
 	health -= amount
 	_update_health_bar()
 	if health <= 0:
+		var meat := preload("res://scenes/item/dropped_item.tscn").instantiate() as DroppedItem
+		meat.item_type = 4  # RAW_MEAT
+		meat.global_position = global_position
+		get_tree().current_scene.add_child(meat)
 		queue_free()
 		return
 	# Kurt saldırırsa kovala

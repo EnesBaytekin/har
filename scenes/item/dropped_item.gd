@@ -2,7 +2,7 @@ extends Node3D
 class_name DroppedItem
 
 ## Item türleri
-enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2, APPLE = 3 }
+enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2, APPLE = 3, RAW_MEAT = 4, COOKED_MEAT = 5 }
 
 ## Bu dropped item'ın türü
 @export var item_type: ItemType = ItemType.WOOD:
@@ -17,6 +17,8 @@ const ITEM_TEXTURES := {
 	ItemType.STONE: preload("res://assets/sprites/item_stone.png"),
 	ItemType.COAL: preload("res://assets/sprites/item_coal.png"),
 	ItemType.APPLE: preload("res://assets/sprites/item_apple.png"),
+	ItemType.RAW_MEAT: preload("res://assets/sprites/item_meat_raw.png"),
+	ItemType.COOKED_MEAT: preload("res://assets/sprites/item_meat_cooked.png"),
 }
 
 func _ready():

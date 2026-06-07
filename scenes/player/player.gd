@@ -13,7 +13,7 @@ var _player_id: int = 0
 ## Maksimum can
 @export var max_health: int = 5
 
-enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2, APPLE = 3 }
+enum ItemType { NONE = -1, WOOD = 0, STONE = 1, COAL = 2, APPLE = 3, RAW_MEAT = 4, COOKED_MEAT = 5 }
 
 const INPUT_PREFIX = "p%d_"
 
@@ -29,6 +29,8 @@ const ITEM_TEXTURES := {
 	ItemType.STONE: preload("res://assets/sprites/item_stone.png"),
 	ItemType.COAL: preload("res://assets/sprites/item_coal.png"),
 	ItemType.APPLE: preload("res://assets/sprites/item_apple.png"),
+	ItemType.RAW_MEAT: preload("res://assets/sprites/item_meat_raw.png"),
+	ItemType.COOKED_MEAT: preload("res://assets/sprites/item_meat_cooked.png"),
 }
 
 var _pickaxe_texture: Texture2D = null
@@ -93,8 +95,10 @@ func _physics_process(_delta: float) -> void:
 				_throw_stone()
 			elif carried_item_type == ItemType.APPLE:
 				_try_feed_horse()
-			elif carried_item_type == ItemType.WOOD or carried_item_type == ItemType.COAL:
+			elif carried_item_type == ItemType.WOOD or carried_item_type == ItemType.COAL or carried_item_type == ItemType.RAW_MEAT:
 				_try_feed_fire()
+			elif carried_item_type == ItemType.COOKED_MEAT:
+				_eat_cooked_meat()
 		else:
 			for n in _nearby_interactables:
 				if not is_instance_valid(n):
@@ -123,18 +127,37 @@ func _physics_process(_delta: float) -> void:
 
 	move_and_slide()
 
-## Yakındaki wagon'un ateşine odun/kömür atar.
+## Pişmiş eti yer, can doldurur.
+func _eat_cooked_meat() -> void:
+	if carried_item_type != ItemType.COOKED_MEAT:
+		return
+	health = minf(health + 3, max_health)
+	_update_health_bar()
+	carried_item_type = -1
+	_update_carried_sprite()
+
+## Yakındaki wagon'un ateşine odun/kömür/çiğ et atar.
 func _try_feed_fire() -> bool:
-	if carried_item_type != ItemType.WOOD and carried_item_type != ItemType.COAL:
+	if carried_item_type != ItemType.WOOD and carried_item_type != ItemType.COAL and carried_item_type != ItemType.RAW_MEAT:
 		return false
 	for n in _nearby_interactables:
 		if not is_instance_valid(n):
 			continue
 		if n.has_method("add_fuel"):
+			if carried_item_type == ItemType.RAW_MEAT and n.has_method("get_fire_level") and n.get_fire_level() <= 0:
+				continue
 			var d := global_position.distance_squared_to(n.global_position)
 			if d < 12.0:
-				var amount := 0.5 if carried_item_type == ItemType.WOOD else 1.0
-				n.add_fuel(amount)
+				if carried_item_type == ItemType.RAW_MEAT:
+					# Çiğ eti pişmiş ete çevir
+					var scene := preload("res://scenes/item/dropped_item.tscn")
+					var cooked := scene.instantiate() as DroppedItem
+					cooked.item_type = 5
+					cooked.global_position = global_position + -global_transform.basis.z * 0.5
+					get_tree().current_scene.add_child(cooked)
+				else:
+					var amount := 0.5 if carried_item_type == ItemType.WOOD else 1.0
+					n.add_fuel(amount)
 				carried_item_type = -1
 				_update_carried_sprite()
 				return true

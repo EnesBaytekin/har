@@ -41,8 +41,13 @@ func get_fire_level() -> int:
 	return fire_level
 
 ## Ateşe yakıt ekle (odun/kömür). player tarafından çağrılır.
+var _fuel_buffer: float = 0.0
+
 func add_fuel(amount: float) -> void:
-	fire_level = fire_level + int(amount)
+	_fuel_buffer += amount
+	while _fuel_buffer >= 1.0:
+		fire_level = fire_level + 1
+		_fuel_buffer -= 1.0
 
 func _process(delta: float) -> void:
 	if fire_level <= 0:
