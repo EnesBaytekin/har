@@ -94,6 +94,7 @@ func _update_hunger_bar():
 	fill.offset.x = (64.0 - w) / -2.0
 ## Atı besle (player tarafından çağrılır).
 func feed(amount: float) -> void:
+	SFXManager.play_sfx("horse_eating")
 	_hunger = minf(_hunger + amount, max_hunger)
 	_update_hunger_bar()
 
@@ -101,6 +102,7 @@ func feed(amount: float) -> void:
 func mount_player(player: Node3D) -> bool:
 	if rider_player_id >= 0:
 		return false
+	SFXManager.play_sfx("horse")
 	rider_node = player
 	rider_player_id = player.get("player_id") as int
 	_mount_ready = false

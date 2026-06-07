@@ -9,8 +9,13 @@ extends CharacterBody3D
 ## Ateş seviyesi (0=hiç yok, 4=maksimum)
 @export var fire_level: int = 0:
 	set(value):
+		var old_level := fire_level
 		fire_level = clampi(value, 0, 4)
 		_update_texture()
+		if old_level <= 0 and fire_level > 0:
+			SFXManager.play_fire()
+		elif old_level > 0 and fire_level <= 0:
+			SFXManager.stop_fire()
 	get():
 		return fire_level
 ## Ateşin sönme hızı (seviye/saniye)

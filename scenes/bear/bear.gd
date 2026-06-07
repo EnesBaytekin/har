@@ -95,6 +95,7 @@ func _physics_process(delta: float) -> void:
 
 				if dist < attack_range and _attack_timer <= 0:
 					if _target.has_method("take_damage") and is_instance_valid(_target):
+						SFXManager.play_sfx("bear")
 						print("Bear attacks! dist=", dist, " damage=", damage)
 						var dmg := damage
 						if _target.is_in_group(&"wolves"):
@@ -173,6 +174,7 @@ func _physics_process(delta: float) -> void:
 
 				if dist < attack_range and _attack_timer <= 0:
 					if _enrage_target.has_method("take_damage"):
+						SFXManager.play_sfx("bear")
 						_enrage_target.take_damage(damage)
 					_attack_timer = attack_cooldown * 0.7
 			else:

@@ -131,6 +131,7 @@ func _physics_process(_delta: float) -> void:
 func _eat_cooked_meat() -> void:
 	if carried_item_type != ItemType.COOKED_MEAT:
 		return
+	SFXManager.play_sfx("eating")
 	health = minf(health + 3, max_health)
 	_update_health_bar()
 	carried_item_type = -1
@@ -205,6 +206,7 @@ func _update_health_bar():
 	fill.offset.x = (64.0 - w) / -2.0
 
 func _die_and_respawn():
+	SFXManager.play_sfx("die")
 	set_process(false)
 	set_physics_process(false)
 	visible = false
@@ -267,6 +269,7 @@ func _update_carried_sprite():
 func _play_pickaxe_anim():
 	if _is_pickaxing:
 		return
+	SFXManager.play_sfx("pickaxe")
 	_is_pickaxing = true
 	var sprite := $Sprite3D as Sprite3D
 	if not sprite:

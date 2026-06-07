@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 global_input="*res://scenes/global/global_input.gd"
 MusicManager="*res://scenes/global/music_manager.gd"
+SFXManager="*res://scenes/global/sfx_manager.gd"
 
 [display]
 

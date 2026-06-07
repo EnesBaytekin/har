@@ -21,7 +21,8 @@ func _ready():
 	$VBoxContainer/PlayButton.grab_focus()
 
 func _on_play():
-	get_tree().change_scene_to_file("res://scenes/test/test_scene.tscn")
+	MusicManager.stop_music()
+	get_tree().change_scene_to_file("res://scenes/intro_cinematic/intro_cinematic.tscn")
 
 func _on_credits():
 	get_tree().change_scene_to_file("res://scenes/credits/credits.tscn")

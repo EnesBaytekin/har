@@ -64,6 +64,7 @@ func _physics_process(delta: float) -> void:
 				elif _howl_cooldown <= 0:
 					_state = State.HOWLING
 					_state_timer = 1.5
+					SFXManager.play_sfx("wolf_au")
 					var s := $Sprite3D as Sprite3D
 					if s:
 						s.texture = load("res://assets/sprites/wolf-au.png")
