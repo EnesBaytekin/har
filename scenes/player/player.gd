@@ -77,16 +77,27 @@ func _process(delta: float) -> void:
 
 func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
+	var prefix := INPUT_PREFIX % player_id
 
-	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "interact"):
-		_do_interact()
+	# X / E / Gamepad X: Item al/bırak
+	if Input.is_action_just_pressed(prefix + "item"):
+		if carried_item_type >= 0:
+			_drop_item()
+		elif _nearby_items.size() > 0:
+			_pickup_item()
 
-	# G/L tuşu — taş fırlat veya elma yedir
-	if Input.is_action_just_pressed(INPUT_PREFIX % player_id + "throw"):
-		if carried_item_type == ItemType.STONE:
-			_throw_stone()
-		elif carried_item_type == ItemType.APPLE:
-			_try_feed_horse()
+	# A / F / Gamepad A: Kullan/Vur
+	if Input.is_action_just_pressed(prefix + "interact"):
+		_do_use()
+
+	# B / R / Gamepad B: Ata bin/in
+	if Input.is_action_just_pressed(prefix + "mount"):
+		for n in _nearby_interactables:
+			if not is_instance_valid(n):
+				continue
+			if n.has_method("mount_player"):
+				n.mount_player(self)
+				return
 
 	if input_dir.length() > 0.15:
 		var direction := _input_to_camera_relative(input_dir)
@@ -98,23 +109,16 @@ func _physics_process(_delta: float) -> void:
 
 	move_and_slide()
 
-func _do_interact():
+## A tuşu: Eldeki item'ı kullan, boşsa vur/kaz.
+func _do_use():
 	if carried_item_type >= 0:
-		_drop_item()
+		if carried_item_type == ItemType.STONE:
+			_throw_stone()
+		elif carried_item_type == ItemType.APPLE:
+			_try_feed_horse()
 		return
 
-	# Önce yerde item varsa al
-	if _nearby_items.size() > 0:
-		_pickup_item()
-		return
-
-	for n in _nearby_interactables:
-		if not is_instance_valid(n):
-			continue
-		if n.has_method("mount_player"):
-			if n.mount_player(self):
-				return
-
+	# Elde item yoksa vur/kaz
 	for n in _nearby_interactables:
 		if not is_instance_valid(n):
 			continue
@@ -123,30 +127,22 @@ func _do_interact():
 			_play_pickaxe_anim()
 			return
 
-## Taşı fırlat — mermi oluştur, item elden gitsin.
+## Taşı fırlat
 func _throw_stone():
 	if carried_item_type != ItemType.STONE:
 		return
-
-	# Eldeki taşı düşür
 	carried_item_type = -1
 	_update_carried_sprite()
-
-	# Fırlatma yönü — oyuncunun son baktığı yön
 	var dir := -global_transform.basis.z
 	dir.y = 0
 	if dir.length_squared() < 0.001:
 		dir = Vector3.FORWARD
 	dir = dir.normalized()
-
-	# Mermiyi oluştur
 	var stone_scene := preload("res://scenes/item/thrown_stone.tscn")
 	var stone := stone_scene.instantiate()
 	stone.global_position = global_position + dir * 0.5 + Vector3.UP * 0.3
 	stone.linear_velocity = dir * 8.0 + Vector3.UP * 1.0
 	get_tree().current_scene.add_child(stone)
-
-
 
 ## Yakındaki ata elma yedirir.
 func _try_feed_horse():
@@ -163,7 +159,6 @@ func _try_feed_horse():
 				_update_carried_sprite()
 				return
 
-## Can bar'ını günceller.
 func _update_health_bar():
 	var fill := $HealthBarFill as Sprite3D
 	if not fill:
@@ -173,20 +168,15 @@ func _update_health_bar():
 	fill.region_rect.size.x = w
 	fill.offset.x = (64.0 - w) / -2.0
 
-## Hasar al.
 func take_damage(amount: int) -> void:
 	if _invincible_timer > 0:
 		return
 	_invincible_timer = INVINCIBLE_TIME
-
 	health -= amount
 	if health <= 0:
 		health = 0
-		# Ölüm — şimdilik canı geri doldur
 		health = max_health
 	_update_health_bar()
-
-	# Sarsılma efekti
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:
 		var tween := create_tween()
@@ -330,10 +320,19 @@ func _update_facing(input_x: float) -> void:
 		sprite.flip_h = input_x < 0
 
 func _get_input() -> Vector2:
+	# Gamepad left stick (öncelikli)
 	var stick_x := Input.get_joy_axis(player_id, JOY_AXIS_LEFT_X)
 	var stick_y := Input.get_joy_axis(player_id, JOY_AXIS_LEFT_Y)
 	if abs(stick_x) > 0.15 or abs(stick_y) > 0.15:
 		return Vector2(stick_x, stick_y)
+
+	# Gamepad D-pad (buton olarak)
+	var dpad_x := -1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_LEFT) else (1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_RIGHT) else 0.0)
+	var dpad_y := -1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_UP) else (1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_DOWN) else 0.0)
+	if dpad_x != 0.0 or dpad_y != 0.0:
+		return Vector2(dpad_x, dpad_y)
+
+	# Klavye
 	var prefix := INPUT_PREFIX % player_id
 	return Vector2(
 		Input.get_axis(prefix + "move_left", prefix + "move_right"),

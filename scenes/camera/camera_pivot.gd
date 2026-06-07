@@ -26,6 +26,14 @@ func _input(event: InputEvent) -> void:
 				_target_angle = _normalize_angle(_target_angle + ROTATION_STEP)
 
 func _process(delta: float) -> void:
+	# Gamepad tetikleri ile kamera dönüşü
+	var lt := Input.get_joy_axis(0, JOY_AXIS_TRIGGER_LEFT)
+	var rt := Input.get_joy_axis(0, JOY_AXIS_TRIGGER_RIGHT)
+	if lt > 0.5:
+		_target_angle = _normalize_angle(_target_angle - rotation_speed * lt * delta)
+	if rt > 0.5:
+		_target_angle = _normalize_angle(_target_angle + rotation_speed * rt * delta)
+
 	var current_deg := rad_to_deg(rotation.y)
 
 	# Mevcut açı ile hedef arasındaki KISA farkı bul (-180..180)
@@ -38,9 +46,7 @@ func _process(delta: float) -> void:
 
 	var step := rotation_speed * delta
 	if abs(diff) <= step:
-		# Hedefe vardık, rotation'ı direkt kısa yoldan ayarla
 		rotation.y = deg_to_rad(current_deg + diff)
-		# _target_angle'i de normalize et ki bir daha birikmesin
 		_target_angle = _normalize_angle(_target_angle)
 	else:
 		rotation.y = deg_to_rad(current_deg + sign(diff) * step)
@@ -60,7 +66,6 @@ func _normalize_angle(deg: float) -> float:
 	return deg
 
 ## Tüm oyuncuların ortalama pozisyonunu döndürür.
-## Hiç oyuncu yoksa pivot'un mevcut pozisyonunu korur.
 func _calculate_midpoint() -> Vector3:
 	var sum := Vector3.ZERO
 	var count := 0

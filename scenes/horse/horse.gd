@@ -55,7 +55,7 @@ func _physics_process(_delta: float) -> void:
 	var current_speed := _get_current_speed()
 
 	if rider_player_id >= 0:
-		if _mount_ready and Input.is_action_just_pressed(INPUT_PREFIX % rider_player_id + "interact"):
+		if _mount_ready and Input.is_action_just_pressed(INPUT_PREFIX % rider_player_id + "mount"):
 			dismount()
 			return
 		_mount_ready = true
@@ -121,7 +121,19 @@ func dismount() -> void:
 func _get_rider_input() -> Vector2:
 	if rider_player_id < 0:
 		return Vector2.ZERO
-	var prefix := INPUT_PREFIX % rider_player_id
+	var pid := rider_player_id
+	# Gamepad left stick (öncelikli)
+	var stick_x := Input.get_joy_axis(pid, JOY_AXIS_LEFT_X)
+	var stick_y := Input.get_joy_axis(pid, JOY_AXIS_LEFT_Y)
+	if abs(stick_x) > 0.15 or abs(stick_y) > 0.15:
+		return Vector2(stick_x, stick_y)
+	# Gamepad D-pad
+	var dpad_x := -1.0 if Input.is_joy_button_pressed(pid, JOY_BUTTON_DPAD_LEFT) else (1.0 if Input.is_joy_button_pressed(pid, JOY_BUTTON_DPAD_RIGHT) else 0.0)
+	var dpad_y := -1.0 if Input.is_joy_button_pressed(pid, JOY_BUTTON_DPAD_UP) else (1.0 if Input.is_joy_button_pressed(pid, JOY_BUTTON_DPAD_DOWN) else 0.0)
+	if dpad_x != 0.0 or dpad_y != 0.0:
+		return Vector2(dpad_x, dpad_y)
+	# Klavye
+	var prefix := INPUT_PREFIX % pid
 	return Vector2(
 		Input.get_axis(prefix + "move_left", prefix + "move_right"),
 		Input.get_axis(prefix + "move_up", prefix + "move_down")
