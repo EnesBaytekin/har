@@ -7,9 +7,9 @@ extends CharacterBody3D
 ## Saldırı hasarı
 @export var damage: int = 20
 ## Saldırı mesafesi
-@export var attack_range: float = 0.8
+@export var attack_range: float = 1.8
 ## Geri çekilme mesafesi
-@export var retreat_distance: float = 3.0
+@export var retreat_distance: float = 4.0
 ## Ayı tespit mesafesi
 @export var detection_range: float = 12.0
 
@@ -110,7 +110,7 @@ func _physics_process(delta: float) -> void:
 				else:
 					velocity = Vector3.ZERO
 					_state = State.ATTACKING
-					_state_timer = 0.5
+					_state_timer = 2.0
 			else:
 				_state = State.IDLE
 				_state_timer = 1.0
@@ -135,7 +135,7 @@ func _physics_process(delta: float) -> void:
 			away.y = 0
 			if away.length() < retreat_distance and _target_bear and is_instance_valid(_target_bear):
 				var dir = away.normalized()
-				velocity = dir * speed * 0.7
+				velocity = dir * speed * 1.3
 				_update_facing(dir)
 			else:
 				velocity = Vector3.ZERO
