@@ -35,7 +35,8 @@ func _ready():
 	_update_hunger_bar()
 
 func _process(delta: float) -> void:
-	_hunger = maxf(_hunger - hunger_rate * delta, 0.0)
+	if velocity.length_squared() > 0.1:
+		_hunger = maxf(_hunger - hunger_rate * delta, 0.0)
 	_update_hunger_bar()
 
 	if rider_player_id < 0:
