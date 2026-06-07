@@ -2,6 +2,8 @@
 
 [ext_resource type="PackedScene" uid="uid://d0luyyk1qtm7s" path="res://scenes/horse/horse.tscn" id="1"]
 [ext_resource type="PackedScene" uid="uid://dn300itmtgel6" path="res://scenes/wagon/wagon.tscn" id="2"]
+[ext_resource type="Script" path="res://scenes/horse_carriage/rope.gd" id="3_rp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/rope.png" id="4_tx"]
 
 [node name="HorseCarriage" type="Node3D" unique_id=1281608843]
 
@@ -10,3 +12,8 @@
 [node name="Wagon" parent="." unique_id=169817908 instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.5)
 target_node = NodePath("../Horse")
+
+[node name="Rope" type="Sprite3D" parent="."]
+script = ExtResource("3_rp")
+point_a = NodePath("../Horse")
+point_b = NodePath("../Wagon")
