@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://vj6v2pfecyhl"]
+
+[ext_resource type="Script" uid="uid://pencxyugw2cx" path="res://scenes/target/target.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://djt66d2t2g0ru" path="res://assets/sprites/target.png" id="2"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_trg_det"]
+radius = 3.1166992
+height = 6.2333984
+
+[node name="Target" type="Node3D" unique_id=1526057725]
+script = ExtResource("1")
+
+[node name="Sprite3D" type="Sprite3D" parent="." unique_id=1141965961]
+transform = Transform3D(10, 0, 0, 0, 0, -10, 0, 10, 0, 0, 0.01, 0)
+texture_filter = 0
+render_priority = -128
+texture = ExtResource("2")
+
+[node name="DetectionArea" type="Area3D" parent="." unique_id=564765342]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea" unique_id=377278984]
+shape = SubResource("CapsuleShape3D_trg_det")

@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dbl2pb7ks0mib" path="res://scenes/rock/rock.tscn" id="6_r"]
 [ext_resource type="PackedScene" uid="uid://btodkonmjwpo5" path="res://scenes/bear/bear.tscn" id="7_b"]
 [ext_resource type="PackedScene" uid="uid://cc7r4lo21hswg" path="res://scenes/wolf/wolf.tscn" id="9_w"]
+[ext_resource type="PackedScene" path="res://scenes/target/target.tscn" id="10_t"]
 
 [sub_resource type="Environment" id="Environment_e1"]
 ambient_light_source = 1
@@ -97,3 +98,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 2)
 
 [node name="Wolf" parent="." unique_id=656998440 instance=ExtResource("9_w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 7)
+
+[node name="Target" parent="." instance=ExtResource("10_t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
