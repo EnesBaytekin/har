@@ -9,6 +9,7 @@ extends CharacterBody3D
 ## Ateş seviyesi (1=en küçük, 4=maksimum, hiç sönmez)
 @export var fire_level: int = 1:
 	set(value):
+		var old_level = fire_level
 		fire_level = clampi(value, 1, 4)
 		_update_texture()
 		if old_level <= 0 and fire_level > 0:
@@ -33,12 +34,10 @@ func _ready():
 	add_to_group("wagons")
 	if target_node:
 		_target = get_node(target_node) as Node3D
-	_wagon_img = Image.new()
-	var wpath := ProjectSettings.globalize_path("res://assets/sprites/wagon.png")
-	_wagon_img.load(wpath)
-	_fire_img = Image.new()
-	var fpath := ProjectSettings.globalize_path("res://assets/sprites/fire.png")
-	_fire_img.load(fpath)
+	var wagon_texture: Texture2D = load("res://assets/sprites/wagon.png")
+	_wagon_img = wagon_texture.get_image()
+	var fire_texture: Texture2D = load("res://assets/sprites/fire.png")
+	_fire_img = fire_texture.get_image()
 	_update_texture()
 
 func get_fire_level() -> int:
