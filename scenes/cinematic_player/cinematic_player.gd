@@ -4,6 +4,8 @@ extends Control
 @export var next_scene: String = ""
 
 var _player: VideoStreamPlayer
+var _preload_progress: Array = []
+var _preload_started: bool = false
 
 
 func _ready():
@@ -11,9 +13,11 @@ func _ready():
 		_goto_next()
 		return
 
+	_start_preload()
+
 	var stream := VideoStreamTheora.new()
 	stream.file = video_path
-	if not FileAccess.file_exists(video_path):
+	if not ResourceLoader.exists(video_path):
 		push_error("Video bulunamadi: ", video_path)
 		_goto_next()
 		return
@@ -25,6 +29,16 @@ func _ready():
 	_player.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_player)
 	_player.play()
+
+
+func _start_preload():
+	if next_scene.is_empty() or _preload_started:
+		return
+	_preload_started = true
+	var err := ResourceLoader.load_threaded_request(next_scene)
+	if err != OK:
+		push_error("Preload basarisiz: ", next_scene, " (", err, ")")
+		_preload_started = false
 
 
 func _input(event):
@@ -40,5 +54,26 @@ func _input(event):
 
 
 func _goto_next():
-	if not next_scene.is_empty():
-		get_tree().change_scene_to_file(next_scene)
+	if next_scene.is_empty():
+		return
+
+	if _preload_started:
+		_preload_started = false
+		var status := ResourceLoader.load_threaded_get_status(next_scene, _preload_progress)
+		match status:
+			ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+				push_error("Preload gecersiz kaynak: ", next_scene)
+			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+				var packed := ResourceLoader.load_threaded_get(next_scene) as PackedScene
+				if packed:
+					get_tree().change_scene_to_packed(packed)
+					return
+			ResourceLoader.THREAD_LOAD_FAILED:
+				push_error("Preload basarisiz: ", next_scene)
+			ResourceLoader.THREAD_LOAD_LOADED:
+				var packed := ResourceLoader.load_threaded_get(next_scene) as PackedScene
+				if packed:
+					get_tree().change_scene_to_packed(packed)
+					return
+
+	get_tree().change_scene_to_file(next_scene)
