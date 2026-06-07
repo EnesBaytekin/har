@@ -15,11 +15,15 @@ func _ready():
 	move_child(bg, 0)
 
 	$VBoxContainer/PlayButton.pressed.connect(_on_play)
+	$VBoxContainer/CreditsButton.pressed.connect(_on_credits)
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit)
 	$VBoxContainer/PlayButton.grab_focus()
 
 func _on_play():
 	get_tree().change_scene_to_file("res://scenes/intro_cinematic/intro_cinematic.tscn")
+
+func _on_credits():
+	get_tree().change_scene_to_file("res://scenes/credits/credits.tscn")
 
 func _on_quit():
 	get_tree().quit()

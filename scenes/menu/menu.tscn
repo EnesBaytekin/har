@@ -64,6 +64,15 @@ theme_override_styles/normal = SubResource("StyleBox_normal")
 theme_override_styles/hover = SubResource("StyleBox_hover")
 theme_override_styles/pressed = SubResource("StyleBox_pressed")
 
+[node name="CreditsButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(400.0, 100.0)
+theme_override_font_sizes/font_size = 36
+text = "Emeği Geçenler"
+theme_override_styles/normal = SubResource("StyleBox_normal")
+theme_override_styles/hover = SubResource("StyleBox_hover")
+theme_override_styles/pressed = SubResource("StyleBox_pressed")
+
 [node name="QuitButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(400.0, 100.0)
