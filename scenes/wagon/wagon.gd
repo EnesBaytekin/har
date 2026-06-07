@@ -6,11 +6,10 @@ extends CharacterBody3D
 @export var max_distance: float = 2.0
 ## Vagonun toparlanma hızı (yüksek = daha sert çekiş)
 @export var follow_speed: float = 6.0
-## Ateş seviyesi (0=hiç yok, 4=maksimum)
-@export var fire_level: int = 0:
+## Ateş seviyesi (1=en küçük, 4=maksimum, hiç sönmez)
+@export var fire_level: int = 1:
 	set(value):
-		var old_level := fire_level
-		fire_level = clampi(value, 0, 4)
+		fire_level = clampi(value, 1, 4)
 		_update_texture()
 		if old_level <= 0 and fire_level > 0:
 			SFXManager.play_fire()
@@ -45,7 +44,6 @@ func _ready():
 func get_fire_level() -> int:
 	return fire_level
 
-## Ateşe yakıt ekle (odun/kömür). player tarafından çağrılır.
 var _fuel_buffer: float = 0.0
 
 func add_fuel(amount: float) -> void:
@@ -55,14 +53,14 @@ func add_fuel(amount: float) -> void:
 		_fuel_buffer -= 1.0
 
 func _process(delta: float) -> void:
-	if fire_level <= 0:
-		return
-
-	# Zamanla azalma
+	# Zamanla azalma (en fazla 1'e kadar)
 	_fire_decay_accum += delta * fire_decay_rate
 	if _fire_decay_accum >= 1.0:
 		var decrease := int(_fire_decay_accum)
-		fire_level = fire_level - decrease
+		if fire_level - decrease >= 1:
+			fire_level = fire_level - decrease
+		else:
+			fire_level = 1
 		_fire_decay_accum -= decrease
 
 	# Animasyon
@@ -97,14 +95,13 @@ func _update_texture():
 	var combined := Image.create(52, 45, false, Image.FORMAT_RGBA8)
 	combined.fill(Color(0, 0, 0, 0))
 	combined.blit_rect(_wagon_img, Rect2(0, 0, 52, 27), Vector2(0, 18))
-	if fire_level > 0 and _fire_img:
-		var cache_key := "l%d_f0" % fire_level
-		if not _cached_textures.has(cache_key):
-			_cached_textures[cache_key] = _combine_textures(fire_level - 1, 0)
-		if _cached_textures.has(cache_key):
-			sprite.texture = _cached_textures[cache_key]
-			_fire_anim_time = 0.0
-			return
+	var cache_key := "l%d_f0" % fire_level
+	if not _cached_textures.has(cache_key):
+		_cached_textures[cache_key] = _combine_textures(fire_level - 1, 0)
+	if _cached_textures.has(cache_key):
+		sprite.texture = _cached_textures[cache_key]
+		_fire_anim_time = 0.0
+		return
 	sprite.texture = ImageTexture.create_from_image(combined)
 
 func _physics_process(delta: float) -> void:
