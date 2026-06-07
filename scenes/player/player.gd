@@ -211,7 +211,9 @@ func take_damage(amount: int) -> void:
 	health -= amount
 	if health <= 0:
 		health = 0
-		health = max_health
+		_update_health_bar()
+		get_tree().change_scene_to_file("res://scenes/outro_cinematic/outro_cinematic.tscn")
+		return
 	_update_health_bar()
 	var sprite := $Sprite3D as Sprite3D
 	if sprite:

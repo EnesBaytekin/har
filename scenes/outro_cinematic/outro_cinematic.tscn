@@ -1,7 +1,7 @@
-[gd_scene format=3 uid="uid://outro_cinematic_01"]
+[gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/cinematic_player/cinematic_player.tscn" id="1"]
 
 [node name="OutroCinematic" instance=ExtResource("1")]
-video_path = "res://assets/cinematics/outro.webm"
+video_path = "res://assets/cinematics/outro.ogv"
 next_scene = "res://scenes/menu/menu.tscn"
