@@ -1,53 +1,51 @@
 [gd_scene format=3 uid="uid://dxom8l801omy7"]
 
-[ext_resource type="Script" path="res://scenes/global/game_scene.gd" id="11_gs"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_axmc3"]
-[ext_resource type="PackedScene" path="res://scenes/camera/camera_pivot.tscn" id="2_bymz7"]
+[ext_resource type="PackedScene" uid="uid://dtvg6p0g2f8q2" path="res://scenes/player/player.tscn" id="1_axmc3"]
+[ext_resource type="PackedScene" uid="uid://b1drmxpwm8dud" path="res://scenes/camera/camera_pivot.tscn" id="2_bymz7"]
+[ext_resource type="Script" uid="uid://bcljy87r2ehic" path="res://scenes/global/game_scene.gd" id="11_gs"]
 
 [sub_resource type="Environment" id="Environment_vn77s"]
-ambient_light_color = Color(0.3, 0.3, 0.35, 1.0)
 ambient_light_source = 1
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ouhp"]
-albedo_color = Color(0.15, 0.18, 0.22, 1.0)
-roughness = 0.8
-metallic = 0.0
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_p5qls"]
-size = Vector2(40, 40)
-material = SubResource("StandardMaterial3D_4ouhp")
+ambient_light_color = Color(0.3, 0.3, 0.35, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_b2cxm"]
 size = Vector3(40, 0.5, 40)
 
-[node name="Scene" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ouhp"]
+albedo_color = Color(0.15, 0.18, 0.22, 1)
+roughness = 0.8
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_p5qls"]
+material = SubResource("StandardMaterial3D_4ouhp")
+size = Vector2(40, 40)
+
+[node name="Scene" type="Node3D" unique_id=745035924]
 script = ExtResource("11_gs")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=177484044]
 environment = SubResource("Environment_vn77s")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1757887076]
 transform = Transform3D(0.707107, -0.5, 0.5, 0.5, 0.707107, 0.5, -0.5, 0.5, 0.707107, 0, 5, 0)
 shadow_enabled = true
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1161934877]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-position = Vector3(0, -0.25, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=432609595]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("BoxShape3D_b2cxm")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=846770582]
 mesh = SubResource("PlaneMesh_p5qls")
 
-[node name="Players" type="Node3D" parent="."]
+[node name="Players" type="Node3D" parent="." unique_id=1189810833]
 
-[node name="Player1" type="CharacterBody3D" parent="Players" instance=ExtResource("1_axmc3")]
-player_id = 0
-position = Vector3(-3, 0, 0)
+[node name="Player1" parent="Players" unique_id=1056960851 instance=ExtResource("1_axmc3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 0)
 
-[node name="Player2" type="CharacterBody3D" parent="Players" instance=ExtResource("1_axmc3")]
+[node name="Player2" parent="Players" unique_id=1102088580 instance=ExtResource("1_axmc3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
 player_id = 1
-position = Vector3(3, 0, 0)
 
-[node name="CameraPivot" parent="." instance=ExtResource("2_bymz7")]
-players = [NodePath("../Players/Player1"), NodePath("../Players/Player2")]
+[node name="CameraPivot" parent="." unique_id=668114933 instance=ExtResource("2_bymz7")]
+players = Array[NodePath]([NodePath("../Players/Player1"), NodePath("../Players/Player2")])

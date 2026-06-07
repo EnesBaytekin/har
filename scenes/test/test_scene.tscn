@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cc7r4lo21hswg" path="res://scenes/wolf/wolf.tscn" id="9_w"]
 [ext_resource type="PackedScene" uid="uid://vj6v2pfecyhl" path="res://scenes/target/target.tscn" id="10_t"]
 [ext_resource type="Script" uid="uid://f820llve25v0" path="res://scenes/test/spawn_timer.gd" id="11_s"]
+[ext_resource type="PackedScene" path="res://scenes/ui/compass.tscn" id="12_c"]
 
 [sub_resource type="Environment" id="Environment_e1"]
 ambient_light_source = 1
@@ -69,3 +70,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 7)
 
 [node name="Target" parent="." unique_id=376675755 instance=ExtResource("10_t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
+
+[node name="Compass" parent="." instance=ExtResource("12_c")]

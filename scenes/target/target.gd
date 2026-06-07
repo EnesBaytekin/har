@@ -10,6 +10,7 @@ var _fade_timer: float = 0.0
 var _fade_rect: ColorRect = null
 
 func _ready():
+	add_to_group("targets")
 	$DetectionArea.body_entered.connect(_on_body_entered)
 
 func _on_body_entered(body: Node) -> void:

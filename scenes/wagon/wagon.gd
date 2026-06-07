@@ -36,8 +36,10 @@ func _ready():
 		_target = get_node(target_node) as Node3D
 	var wagon_texture: Texture2D = load("res://assets/sprites/wagon.png")
 	_wagon_img = wagon_texture.get_image()
+	_wagon_img.convert(Image.FORMAT_RGBA8)
 	var fire_texture: Texture2D = load("res://assets/sprites/fire.png")
 	_fire_img = fire_texture.get_image()
+	_fire_img.convert(Image.FORMAT_RGBA8)
 	_update_texture()
 
 func get_fire_level() -> int:
