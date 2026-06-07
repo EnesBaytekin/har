@@ -79,16 +79,30 @@ func _physics_process(_delta: float) -> void:
 	var input_dir := _get_input()
 	var prefix := INPUT_PREFIX % player_id
 
-	# X / E / Gamepad X: Item al/bırak
-	if Input.is_action_just_pressed(prefix + "item"):
+	# A / F / Gamepad A: Item al / bırak
+	if Input.is_action_just_pressed(prefix + "interact"):
 		if carried_item_type >= 0:
 			_drop_item()
 		elif _nearby_items.size() > 0:
 			_pickup_item()
 
-	# A / F / Gamepad A: Kullan/Vur
-	if Input.is_action_just_pressed(prefix + "interact"):
-		_do_use()
+	# X / E / Gamepad X: Item kullan (fırlat/yedir/ateşe at) + vur/kaz
+	if Input.is_action_just_pressed(prefix + "item"):
+		if carried_item_type >= 0:
+			if carried_item_type == ItemType.STONE:
+				_throw_stone()
+			elif carried_item_type == ItemType.APPLE:
+				_try_feed_horse()
+			elif carried_item_type == ItemType.WOOD or carried_item_type == ItemType.COAL:
+				_try_feed_fire()
+		else:
+			for n in _nearby_interactables:
+				if not is_instance_valid(n):
+					continue
+				if n.has_method("hit"):
+					n.hit(player_id)
+					_play_pickaxe_anim()
+					break
 
 	# B / R / Gamepad B: Ata bin/in
 	if Input.is_action_just_pressed(prefix + "mount"):
@@ -108,28 +122,6 @@ func _physics_process(_delta: float) -> void:
 		velocity = Vector3.ZERO
 
 	move_and_slide()
-
-## A tuşu: Eldeki item'ı kullan, boşsa vur/kaz.
-func _do_use():
-	if carried_item_type >= 0:
-		# Odun/kömür varsa önce ateşe atmayı dene
-		if carried_item_type == ItemType.WOOD or carried_item_type == ItemType.COAL:
-			if _try_feed_fire():
-				return
-		if carried_item_type == ItemType.STONE:
-			_throw_stone()
-		elif carried_item_type == ItemType.APPLE:
-			_try_feed_horse()
-		return
-
-	# Elde item yoksa vur/kaz
-	for n in _nearby_interactables:
-		if not is_instance_valid(n):
-			continue
-		if n.has_method("hit"):
-			n.hit(player_id)
-			_play_pickaxe_anim()
-			return
 
 ## Yakındaki wagon'un ateşine odun/kömür atar.
 func _try_feed_fire() -> bool:
@@ -347,7 +339,7 @@ func _get_input() -> Vector2:
 	if abs(stick_x) > 0.15 or abs(stick_y) > 0.15:
 		return Vector2(stick_x, stick_y)
 
-	# Gamepad D-pad (buton olarak)
+	# Gamepad D-pad
 	var dpad_x := -1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_LEFT) else (1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_RIGHT) else 0.0)
 	var dpad_y := -1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_UP) else (1.0 if Input.is_joy_button_pressed(player_id, JOY_BUTTON_DPAD_DOWN) else 0.0)
 	if dpad_x != 0.0 or dpad_y != 0.0:
