@@ -6,8 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c7kaerhw83twf" path="res://scenes/horse_carriage/horse_carriage.tscn" id="4_h"]
 [ext_resource type="PackedScene" uid="uid://cq2rurqt34vm4" path="res://scenes/tree/tree.tscn" id="5_t"]
 [ext_resource type="PackedScene" uid="uid://dbl2pb7ks0mib" path="res://scenes/rock/rock.tscn" id="6_r"]
-[ext_resource type="PackedScene" path="res://scenes/bear/bear.tscn" id="7_b"]
-[ext_resource type="PackedScene" path="res://scenes/ui/health_ui.tscn" id="8_u"]
+[ext_resource type="PackedScene" uid="uid://btodkonmjwpo5" path="res://scenes/bear/bear.tscn" id="7_b"]
 [ext_resource type="PackedScene" uid="uid://cc7r4lo21hswg" path="res://scenes/wolf/wolf.tscn" id="9_w"]
 
 [sub_resource type="Environment" id="Environment_e1"]
@@ -98,5 +97,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 2)
 
 [node name="Wolf" parent="." unique_id=656998440 instance=ExtResource("9_w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 7)
-
-[node name="HealthUI" parent="." unique_id=1561107772 instance=ExtResource("8_u")]

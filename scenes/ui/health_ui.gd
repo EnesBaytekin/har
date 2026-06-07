@@ -12,7 +12,4 @@ func _process(_delta: float) -> void:
 		var max_hp = p.get("max_health") as int
 		if pid != null and hp != null and max_hp != null:
 			texts.append("P%s: %s/%s" % [pid, hp, max_hp])
-	if texts.is_empty():
-		label.text = "HP: ?/?"
-	else:
-		label.text = " | ".join(texts)
+	label.text = " | ".join(texts)
