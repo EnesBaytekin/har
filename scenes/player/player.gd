@@ -112,6 +112,10 @@ func _physics_process(_delta: float) -> void:
 ## A tuşu: Eldeki item'ı kullan, boşsa vur/kaz.
 func _do_use():
 	if carried_item_type >= 0:
+		# Odun/kömür varsa önce ateşe atmayı dene
+		if carried_item_type == ItemType.WOOD or carried_item_type == ItemType.COAL:
+			if _try_feed_fire():
+				return
 		if carried_item_type == ItemType.STONE:
 			_throw_stone()
 		elif carried_item_type == ItemType.APPLE:
@@ -126,6 +130,23 @@ func _do_use():
 			n.hit(player_id)
 			_play_pickaxe_anim()
 			return
+
+## Yakındaki wagon'un ateşine odun/kömür atar.
+func _try_feed_fire() -> bool:
+	if carried_item_type != ItemType.WOOD and carried_item_type != ItemType.COAL:
+		return false
+	for n in _nearby_interactables:
+		if not is_instance_valid(n):
+			continue
+		if n.has_method("add_fuel"):
+			var d := global_position.distance_squared_to(n.global_position)
+			if d < 12.0:
+				var amount := 0.5 if carried_item_type == ItemType.WOOD else 1.0
+				n.add_fuel(amount)
+				carried_item_type = -1
+				_update_carried_sprite()
+				return true
+	return false
 
 ## Taşı fırlat
 func _throw_stone():

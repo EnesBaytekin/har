@@ -13,9 +13,12 @@ extends CharacterBody3D
 		_update_texture()
 	get():
 		return fire_level
+## Ateşin sönme hızı (seviye/saniye)
+@export var fire_decay_rate: float = 0.02
 
 var _target: Node3D = null
 var _fire_anim_time: float = 0.0
+var _fire_decay_accum: float = 0.0
 const FIRE_ANIM_SPEED: float = 15.0
 
 var _wagon_img: Image = null
@@ -37,15 +40,22 @@ func _ready():
 func get_fire_level() -> int:
 	return fire_level
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		var key := int(event.keycode)
-		if key >= KEY_0 and key <= KEY_4:
-			fire_level = key - KEY_0
+## Ateşe yakıt ekle (odun/kömür). player tarafından çağrılır.
+func add_fuel(amount: float) -> void:
+	fire_level = fire_level + int(amount)
 
 func _process(delta: float) -> void:
 	if fire_level <= 0:
 		return
+
+	# Zamanla azalma
+	_fire_decay_accum += delta * fire_decay_rate
+	if _fire_decay_accum >= 1.0:
+		var decrease := int(_fire_decay_accum)
+		fire_level = fire_level - decrease
+		_fire_decay_accum -= decrease
+
+	# Animasyon
 	_fire_anim_time += delta * FIRE_ANIM_SPEED
 	var col := int(_fire_anim_time) % 5
 	var cache_key := "l%d_f%d" % [fire_level, col]
@@ -58,18 +68,13 @@ func _process(delta: float) -> void:
 func _combine_textures(row: int, col: int) -> Texture2D:
 	if not _fire_img or not _wagon_img:
 		return load("res://assets/sprites/wagon.png")
-
-	var fw := 45
-	var fh := 45
-	var fx := col * fw
-	var fy := row * fh
+	var fw := 45; var fh := 45
+	var fx := col * fw; var fy := row * fh
 	var fire_frame := _fire_img.get_region(Rect2(fx, fy, fw, fh))
-
 	var combined := Image.create(52, 45, false, Image.FORMAT_RGBA8)
 	combined.fill(Color(0, 0, 0, 0))
 	combined.blit_rect(_wagon_img, Rect2(0, 0, 52, 27), Vector2(0, 18))
 	combined.blend_rect(fire_frame, Rect2(0, 0, fw, fh), Vector2(3, 0))
-
 	return ImageTexture.create_from_image(combined)
 
 func _update_texture():
@@ -79,12 +84,9 @@ func _update_texture():
 	if not _wagon_img:
 		sprite.texture = load("res://assets/sprites/wagon.png")
 		return
-
-	# Her zaman 52×45 canvas kullan (fire level 0'da da aynı boyut)
 	var combined := Image.create(52, 45, false, Image.FORMAT_RGBA8)
 	combined.fill(Color(0, 0, 0, 0))
 	combined.blit_rect(_wagon_img, Rect2(0, 0, 52, 27), Vector2(0, 18))
-
 	if fire_level > 0 and _fire_img:
 		var cache_key := "l%d_f0" % fire_level
 		if not _cached_textures.has(cache_key):
@@ -93,7 +95,6 @@ func _update_texture():
 			sprite.texture = _cached_textures[cache_key]
 			_fire_anim_time = 0.0
 			return
-
 	sprite.texture = ImageTexture.create_from_image(combined)
 
 func _physics_process(delta: float) -> void:
