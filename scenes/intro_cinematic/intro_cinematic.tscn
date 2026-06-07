@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cbltijyny5t3w"]
+
+[ext_resource type="PackedScene" path="res://scenes/cinematic_player/cinematic_player.tscn" id="1"]
+
+[node name="IntroCinematic" unique_id=2101853192 instance=ExtResource("1")]
+video_path = "res://assets/cinematics/dnemee.ogv"
+next_scene = "res://scenes/test/test_scene.tscn"

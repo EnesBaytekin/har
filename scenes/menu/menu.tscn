@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://menu_scene_01"]
+
+[ext_resource type="Script" path="res://scenes/menu/menu.gd" id="1"]
+
+[node name="Menu" type="Control"]
+size = Vector2i(1920, 1080)
+
+[node name="PlayButton" type="Button" parent="."]
+position = Vector2i(800, 500)
+size = Vector2i(160, 40)
+text = "PLAY"
+
+[node name="QuitButton" type="Button" parent="."]
+position = Vector2i(800, 560)
+size = Vector2i(160, 40)
+text = "QUIT"

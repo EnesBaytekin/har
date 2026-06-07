@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="gocebe"
-run/main_scene="res://scenes/test/test_scene.tscn"
+run/main_scene="res://scenes/menu/menu.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -71,13 +71,13 @@ p1_move_up={
 p0_interact={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":70,"physical_keycode":70,"key_label":0,"unicode":70,"location":0,"echo":false,"script":null)
-,Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"button_index":0,"pressure":0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":0,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
 p1_interact={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":75,"physical_keycode":75,"key_label":0,"unicode":75,"location":0,"echo":false,"script":null)
-,Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":1,"window_id":0,"button_index":0,"pressure":0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":1,"button_index":0,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
 p0_throw={
@@ -90,29 +90,28 @@ p1_throw={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":76,"physical_keycode":76,"key_label":0,"unicode":76,"location":0,"echo":false,"script":null)
 ]
 }
-
 p0_item={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":69,"physical_keycode":69,"key_label":0,"unicode":69,"location":0,"echo":false,"script":null)
-,Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"button_index":2,"pressure":0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":2,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
 p1_item={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":73,"physical_keycode":73,"key_label":0,"unicode":73,"location":0,"echo":false,"script":null)
-,Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":1,"window_id":0,"button_index":2,"pressure":0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":1,"button_index":2,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
 p0_mount={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":82,"physical_keycode":82,"key_label":0,"unicode":82,"location":0,"echo":false,"script":null)
-,Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"button_index":1,"pressure":0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":1,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
 p1_mount={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":84,"physical_keycode":84,"key_label":0,"unicode":84,"location":0,"echo":false,"script":null)
-,Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":1,"window_id":0,"button_index":1,"pressure":0,"pressed":false,"script":null)
+, Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":1,"button_index":1,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
 camera_left={
@@ -125,7 +124,6 @@ camera_right={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":57,"physical_keycode":57,"key_label":0,"unicode":57,"location":0,"echo":false,"script":null)
 ]
 }
-
 
 [input_devices]
 

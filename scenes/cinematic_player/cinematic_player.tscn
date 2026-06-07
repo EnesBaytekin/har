@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cinematic_player_01"]
+
+[ext_resource type="Script" path="res://scenes/cinematic_player/cinematic_player.gd" id="1"]
+
+[node name="CinematicPlayer" type="Node"]
+script = ExtResource("1")
