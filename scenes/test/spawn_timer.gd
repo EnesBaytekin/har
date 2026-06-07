@@ -24,6 +24,7 @@ var _bear_timer: float = 0.0
 var _wolf_timer: float = 0.0
 
 func _ready():
+	MusicManager.play_game_music()
 	randomize()
 
 	# Target'ı rastgele bir yönde 110 birim uzağa koy

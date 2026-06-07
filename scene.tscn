@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://dxom8l801omy7"]
 
+[ext_resource type="Script" path="res://scenes/global/game_scene.gd" id="11_gs"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_axmc3"]
 [ext_resource type="PackedScene" path="res://scenes/camera/camera_pivot.tscn" id="2_bymz7"]
 
@@ -20,6 +21,7 @@ material = SubResource("StandardMaterial3D_4ouhp")
 size = Vector3(40, 0.5, 40)
 
 [node name="Scene" type="Node3D"]
+script = ExtResource("11_gs")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_vn77s")

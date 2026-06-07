@@ -2,6 +2,7 @@ extends Control
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	MusicManager.play_menu_music()
 
 	var shader = load("res://assets/shaders/menu_bg.gdshader")
 	var mat = ShaderMaterial.new()

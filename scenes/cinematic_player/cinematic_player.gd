@@ -7,6 +7,8 @@ var _player: VideoStreamPlayer
 
 
 func _ready():
+	MusicManager.stop_music()
+
 	if video_path.is_empty():
 		_goto_next()
 		return
