@@ -205,11 +205,19 @@ func _update_health_bar():
 	fill.region_rect.size.x = w
 	fill.offset.x = (64.0 - w) / -2.0
 
+var _respawn_pos_cache: Vector3 = Vector3.ZERO
+
 func _die_and_respawn():
 	SFXManager.play_sfx("die")
 	set_process(false)
 	set_physics_process(false)
 	visible = false
+
+	var wagon := get_tree().get_first_node_in_group("wagons")
+	if wagon:
+		_respawn_pos_cache = wagon.global_position
+	else:
+		_respawn_pos_cache = Vector3.ZERO
 
 	var timer := get_tree().create_timer(5.0)
 	timer.timeout.connect(_respawn)
@@ -218,9 +226,16 @@ func _respawn():
 	health = max_health
 	_update_health_bar()
 
-	var hc := get_tree().current_scene.find_child("HorseCarriage", true, false)
-	if hc:
-		global_position = hc.global_position + Vector3(0, 0, 2)
+	var pos := _respawn_pos_cache
+	if pos == Vector3.ZERO:
+		var wagon := get_tree().get_first_node_in_group("wagons")
+		if wagon:
+			pos = wagon.global_position
+	if pos != Vector3.ZERO:
+		var angle := randf() * TAU
+		pos.x += cos(angle) * 1.5
+		pos.z += sin(angle) * 1.5
+		global_position = pos
 	else:
 		global_position = Vector3.ZERO
 
