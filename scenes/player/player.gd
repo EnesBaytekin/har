@@ -204,6 +204,29 @@ func _update_health_bar():
 	fill.region_rect.size.x = w
 	fill.offset.x = (64.0 - w) / -2.0
 
+func _die_and_respawn():
+	set_process(false)
+	set_physics_process(false)
+	visible = false
+
+	var timer := get_tree().create_timer(5.0)
+	timer.timeout.connect(_respawn)
+
+func _respawn():
+	health = max_health
+	_update_health_bar()
+
+	var hc := get_tree().current_scene.find_child("HorseCarriage", true, false)
+	if hc:
+		global_position = hc.global_position + Vector3(0, 0, 2)
+	else:
+		global_position = Vector3.ZERO
+
+	visible = true
+	_invincible_timer = 2.0
+	set_process(true)
+	set_physics_process(true)
+
 func take_damage(amount: int) -> void:
 	if _invincible_timer > 0:
 		return
@@ -212,7 +235,7 @@ func take_damage(amount: int) -> void:
 	if health <= 0:
 		health = 0
 		_update_health_bar()
-		get_tree().change_scene_to_file("res://scenes/outro_cinematic/outro_cinematic.tscn")
+		_die_and_respawn()
 		return
 	_update_health_bar()
 	var sprite := $Sprite3D as Sprite3D
