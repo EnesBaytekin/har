@@ -73,6 +73,8 @@ func _physics_process(_delta: float) -> void:
 
 		if rider_node and is_instance_valid(rider_node):
 			rider_node.global_position = global_position
+	else:
+		velocity = Vector3.ZERO
 
 func _get_current_speed() -> float:
 	if _hunger <= 0.0:
