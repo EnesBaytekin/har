@@ -16,6 +16,7 @@ func _ready():
 	_box_mesh = BoxMesh.new()
 	_box_mesh.material = _material
 	_mesh_instance.mesh = _box_mesh
+	_mesh_instance.cast_shadow = 0
 	add_child(_mesh_instance)
 
 func _process(_delta: float) -> void:
